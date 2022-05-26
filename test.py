@@ -11,7 +11,9 @@ HTML = urllib.request.urlopen(webUrl).read()
 
 
 img_url = re.search(r"img.*?src=\"(?P<img_url>[^\"]*)\"", HTML.decode("utf-8"), re.DOTALL)['img_url']
-price = re.search(r"<a title=\"Nonfoil: \$(?P<price>[^,]*)[^>]*>", HTML.decode("utf-8"), re.DOTALL)['price']
+# price = re.search(r"<a title=\"Nonfoil: \$(?P<price>[^,]*)[^>]*>", HTML.decode("utf-8"), re.DOTALL)['price']
+# prices = re.search(r"<a title=\"Nonfoil: \$(?P<nonfoil>[^,]*), Foil: \$(?P<foil>[^\"]*)\"[^>]*>", HTML.decode("utf-8"), re.DOTALL)
+price = re.search(r"<span class=\"price currency-usd\">\$(?P<price>[^<]*)</span>", HTML.decode("utf-8"), re.DOTALL)['price']
 print(f'img url : {img_url}\nnonfoil price : {price}')
 
 # print(HTML)
