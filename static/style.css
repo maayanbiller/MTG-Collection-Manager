@@ -1,0 +1,230 @@
+.card_img {
+    border: 1px solid #334400;
+    border-radius: 5px;
+    background-color: #fff;
+    padding: 20px;
+    margin: 20px 0;
+    float: left;
+}
+.card_name_search {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 20px;
+    font-weight: bold;
+    color: #334400;
+}
+.card_price_search {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 20px;
+    font-weight: bold;
+    color: #334400;
+}
+.in_page_card_img {
+    border: 1px solid #334400;
+    border-radius: 5px;
+    background-color: #fff;
+    padding: 20px;
+    margin: 20px 0;
+    margin: 10px 20px 0px 10px;
+    float: left;
+}
+.in_page_card_name {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 40px;
+    font-weight: bold;
+    color: #334400;
+    padding-left: 470px;
+}
+.in_page_card_type {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 30px;
+    font-weight: bold;
+    color: #334400;
+    padding-left: 490px;
+}
+.in_page_card_text {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 20px;
+    font-weight: bold;
+    color: #334400;
+    padding-left: 510px;
+}
+.in_page_card_price {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 30px;
+    font-weight: bold;
+    color: #334400;
+    padding-left: 470px;
+}
+.search_loading_div {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 3 0px;
+    font-weight: bold;
+}
+
+.mana-cost-symbol {
+    background-repeat: no-repeat;
+        display: inline-block;
+    margin: 10px 1px -1px 1px;
+    border-radius: 500px;
+    box-shadow: -1px 1px 0 rgb(0 0 0 / 85%);
+    text-indent: -999em;
+    width: 25px;
+    height: 25px;
+}
+.text-symbol {
+    background-repeat: no-repeat;
+        display: inline-block;
+    margin: 1px 1px -1px 1px;
+    border-radius: 500px;
+    box-shadow: -1px 1px 0 rgb(0 0 0 / 85%);
+    text-indent: -999em;
+    width: 22px;
+    height: 22px;
+}
+.symbol-W {
+    background-image: url(/static/symbols/W.svg);
+}
+.symbol-U {
+    background-image: url(/static/symbols/U.svg)
+}
+.symbol-B {
+    background-image: url(/static/symbols/B.svg)
+}
+.symbol-R {
+    background-image: url(/static/symbols/R.svg)
+}
+.symbol-G {
+    background-image: url(/static/symbols/G.svg)
+}
+
+
+.symbol-WorU {
+    background-image: url(/static/symbols/WorU.svg)
+}
+.symbol-WorB {
+    background-image: url(/static/symbols/WorB.svg)
+}
+.symbol-RorW {
+    background-image: url(/static/symbols/RorW.svg)
+}
+.symbol-GorW {
+    background-image: url(/static/symbols/GorW.svg)
+}
+.symbol-UorR {
+    background-image: url(/static/symbols/UorR.svg)
+}
+.symbol-GorU {
+    background-image: url(/static/symbols/GorU.svg)
+}
+.symbol-BorR {
+    background-image: url(/static/symbols/BorR.svg)
+}
+.symbol-BorG {
+    background-image: url(/static/symbols/BorG.svg)
+}
+.symbol-RorG {
+    background-image: url(/static/symbols/RorG.svg)
+}
+
+
+.symbol-2orW {
+    background-image: url(/static/symbols/2orW.svg)
+}
+.symbol-2orU {
+    background-image: url(/static/symbols/2orU.svg)
+}
+.symbol-2orB {
+    background-image: url(/static/symbols/2orB.svg)
+}
+.symbol-2orR {
+    background-image: url(/static/symbols/2orR.svg)
+}
+.symbol-2orG {
+    background-image: url(/static/symbols/2orG.svg)
+}
+
+
+.symbol-WorP {
+    background-image: url(/static/symbols/WorP.svg);
+}
+.symbol-UorP {
+    background-image: url(/static/symbols/UorP.svg)
+}
+.symbol-BorP {
+    background-image: url(/static/symbols/BorP.svg)
+}
+.symbol-RorP {
+    background-image: url(/static/symbols/RorP.svg)
+}
+.symbol-GorP {
+    background-image: url(/static/symbols/GorP.svg)
+}
+.symbol-GorUorP {
+    background-image: url(/static/symbols/GorUorP.svg)
+}
+
+
+.symbol-0 {
+    background-image: url(/static/symbols/0.svg)
+}
+.symbol-1 {
+    background-image: url(/static/symbols/1.svg)
+}
+.symbol-2 {
+    background-image: url(/static/symbols/2.svg)
+}
+.symbol-3 {
+    background-image: url(/static/symbols/3.svg)
+}
+.symbol-4 {
+    background-image: url(/static/symbols/4.svg)
+}
+.symbol-5 {
+    background-image: url(/static/symbols/5.svg)
+}
+.symbol-6 {
+    background-image: url(/static/symbols/6.svg)
+}
+.symbol-7 {
+    background-image: url(/static/symbols/7.svg)
+}
+.symbol-8 {
+    background-image: url(/static/symbols/8.svg)
+}
+.symbol-9 {
+    background-image: url(/static/symbols/9.svg)
+}
+.symbol-10 {
+    background-image: url(/static/symbols/10.svg)
+}
+.symbol-11 {
+    background-image: url(/static/symbols/11.svg)
+}
+.symbol-12 {
+    background-image: url(/static/symbols/12.svg)
+}
+.symbol-13 {
+    background-image: url(/static/symbols/13.svg)
+}
+.symbol-14 {
+    background-image: url(/static/symbols/14.svg)
+}
+.symbol-15 {
+    background-image: url(/static/symbols/15.svg)
+}
+.symbol-16 {
+    background-image: url(/static/symbols/16.svg)
+}
+.symbol-20 {
+    background-image: url(/static/symbols/20.svg)
+}
+
+.symbol-C {
+    background-image: url(/static/symbols/C.svg)
+}
+.symbol-S {
+    background-image: url(/static/symbols/S.svg)
+}
+.symbol-T {
+    background-image: url(/static/symbols/T.svg)
+}

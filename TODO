@@ -1,0 +1,36 @@
+DOUBLE FACED CARDS!
+
+home page
+    search textbox
+    advanced search link
+
+search results page
+    results table with price, name, image and is in collection
+
+advanced search page
+    text/check boxes for each of the following:
+        sort by...
+        color identity
+        price range
+        mana cost/value
+        type
+        subtype
+        set
+        is in collection
+
+card page
+    card image
+    card name
+    card price
+    card text
+    card type
+    card mana cost
+    show all versions link
+    card set
+    is in collection
+
+card versions page
+    table with card versions with name, price and is in collection
+
+box/deck page
+    all the cards in the box/deck

@@ -1,11 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ card.name }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <title>{{ card_name }}</title>
 </head>
 <body>
-    <h1>{{ card.name }}</h1>
-    <p>{{ card.body }} on {{ card.price }}</p>
-    <img title={{ card.name }} src={{ card.img_url }}, width="120%", height="120%">
+    <a href="/home">
+        <button type="Home">Home</button>
+    </a>
+    <form action="/search" method="get">
+        <input type="text" name="name" placeholder="card name">
+        <input type="submit" value="Search">
+    </form>
+    {% for mana in card.mana_cost.split(' ') %}
+        <div class="mana-cost-symbol symbol-{{ mana.replace('/', 'or') }}" title="one {{ mana }} mana">{{ mana }}</div>
+    {% endfor %}
+    <div class="in_page_card_img">
+        <img title={{ card.name }} src={{ card.img_url }} width="400">
+    </div>
+    <p class="in_page_card_name">{{ card.name }}</p>
+    <p class="in_page_card_type">{{ card.type }}</p>
+    <p class="in_page_card_text">
+        {% for pile in text_list %}
+            {% if pile[0] == '/' and pile[-1] == '/' %}
+                <svg class="text-symbol symbol-{{ pile[1:-1] }}" title="one {{ mana }} mana">{{ mana }}</svg>
+            {% else %}
+                {% for paragraph in pile.split('\n') %}
+                    {{ paragraph }}
+                    {% if not loop.last %}
+                        <br>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    </p>
+    <p class="in_page_card_price">price : {{ card.price }}$</p>
+    <a href="/card/all-versions/{{ card.url_name }}">
+        <button type="button">Show all versions</button>
+    </a>
 </body>
 </html>

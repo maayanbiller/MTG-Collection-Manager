@@ -22,12 +22,12 @@ cards = [
 @app.route('/')
 @app.route('/home')
 def hello():
-    return render_template('home.html', cards=cards)
+    return render_template('search_res.html', cards=cards)
 
 
 # @app.route(f'/{card.name}')
 # def hello(card):
-#     return render_template('home.html', cards=cards)
+#     return render_template('search_res.html', cards=cards)
 
 
 if __name__ == '__main__':
