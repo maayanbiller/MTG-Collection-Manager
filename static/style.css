@@ -23,7 +23,6 @@
     border-radius: 5px;
     background-color: #fff;
     padding: 20px;
-    margin: 20px 0;
     margin: 10px 20px 0px 10px;
     float: left;
 }
@@ -60,11 +59,24 @@
     font-size: 3 0px;
     font-weight: bold;
 }
+.flip-image-button {
+    background-image: url(static/images/symbols/1.svg);
+    background-color: #334400;
+    border: 1px solid #334400;
+    border-radius: 5px;
+    color: #fff;
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 10px;
+    margin: 10px 0;
+    float: left;
+}
 
 .mana-cost-symbol {
     background-repeat: no-repeat;
         display: inline-block;
-    margin: 10px 1px -1px 1px;
+    margin: 5px 1px -1px 1px;
     border-radius: 500px;
     box-shadow: -1px 1px 0 rgb(0 0 0 / 85%);
     text-indent: -999em;
@@ -219,6 +231,9 @@
     background-image: url(/static/symbols/20.svg)
 }
 
+.symbol-X {
+    background-image: url(/static/symbols/X.svg)
+}
 .symbol-C {
     background-image: url(/static/symbols/C.svg)
 }
