@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/html">
 <head>
     <link rel="stylesheet" href="/static/style.css">
     <title>{{ front_card.name }}</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
         function flip_card_img() {
             var img = document.getElementById("card_img");
@@ -13,14 +14,54 @@
             }
         }
 
+        function show_or_hide_object(object_id) {
+            var object = document.getElementById(object_id);
+            if (object.style.display != "block") {
+                object.style.display = "block";
+            } else {
+                object.style.display = "none";
+            }
+        }
+
+        function get_checkbox_val(checkbox_id) {
+            return document.getElementById(checkbox_id).checked
+        }
+
+        function get_textbox_val(textbox_id) {
+            return document.getElementById(textbox_id).value
+        }
+
+        function add_to_collection(edition, collector_num, box, is_foil) {
+            $.ajax({
+                type: "GET",
+                url: `/add_to_cards_collection/${edition}/${collector_num}/${box}/${is_foil}`,
+                success: function (resp) {
+                    $("#card_box_name").text(`Card added to box - ${resp}`);
+                }
+            });
+            var object = document.getElementById("add_to_collection_form");
+            object.style.display = "none";
+        }
+
+        function add_to_deck(edition, collector_num, box, is_foil, is_commander) {
+            $.ajax({
+                type: "GET",
+                url: `/add_to_deck/${edition}/${collector_num}/${box}/${is_foil}/${is_commander}`,
+                success: function (resp) {
+                    $("#card_box_name").text(`Card added to deck - ${resp}`);
+                }
+            });
+            var object = document.getElementById("add_to_deck_form");
+            object.style.display = "none";
+        }
     </script>
 </head>
 <body>
     <a href="/home">
         <button type="Home">Home</button>
     </a>
-    <form action="/search" method="get">
-        <input type="text" name="name" placeholder="card name">
+    <form action="/search/in_collection" method="get">
+        <input type="text" name="name" placeholder="search in collection">
         <input type="submit" value="Search">
     </form>
 
@@ -54,12 +95,55 @@
             <div><br></div>
         {% endif %}
     {% endfor %}
+
     {% if back_card %}
         <button class="flip-image-button" onclick="flip_card_img()">Flip</button>
     {% endif %}
-    <p class="in_page_card_price">price : {{ front_card.price }}$</p>
+    {% if front_card.nonfoil_price != -1 %}
+        <p class="in_page_card_price">price : {{ front_card.nonfoil_price }}$</p>
+    {% endif %}
+    {% if front_card.foil_price != -1 %}
+        <p class="in_page_card_price">foil price : {{ front_card.foil_price }}$</p>
+    {% endif %}
     <a href="/card/all-versions/{{ front_card.url_name }}">
         <button type="button">Show all versions</button>
     </a>
+    <a href="/card-copies/{{ front_card.name }}">
+        <button type="button">Show all copies</button>
+    </a>
+    <br><br>
+    <button type="button" onclick="show_or_hide_object('add_to_collection_form')">Add to my collection</button>
+    <button type="button" onclick="show_or_hide_object('add_to_deck_form')">Add to deck</button>
+    <br><br>
+    <div id="add_to_collection_form" class="add-to-collection-form">
+        <label class="add-to-collection-foil-checkbox">Foil
+            <input id="add_to_collection_foil_checkbox" type="checkbox">
+            <span class="add-to-collection-foil-checkbox-checkmark"></span>
+        </label>
+        <button class=add-to-collection-add-button" type="button" onclick="add_to_collection('{{ front_card.edition }}', '{{ front_card.collector_num }}', 'rand', get_checkbox_val('add_to_collection_foil_checkbox'))">Add</button>
+    </div>
+
+    <div id="add_to_deck_form" class="add-to-deck-form">
+        <label class="add-to-deck-name-input">
+            <input id="deck_name_input" type="text" placeholder="deck name" list="decks">
+            <datalist id="decks">
+                {% for deck in decks %}
+                    <option value="{{ deck }}">
+                {% endfor %}
+            </datalist>
+
+        </label>
+        <br><br>
+        <label class="add-to-deck-foil-checkbox">Foil
+            <input id="add_to_deck_foil_checkbox" type="checkbox">
+            <span class="add-to-deck-foil-checkbox-checkmark"></span>
+        </label>
+        <label class="add-to-deck-commander-checkbox">Commander
+            <input id="add_to_deck_commander_checkbox" type="checkbox">
+            <span class="commander-checkbox-checkmark"></span>
+        </label>
+        <button class="add-to-deck-add-button" type="button" onclick="add_to_deck('{{ front_card.edition }}', '{{ front_card.collector_num }}', get_textbox_val('deck_name_input'), get_checkbox_val('add_to_deck_foil_checkbox'), get_checkbox_val('add_to_deck_commander_checkbox'))">Add</button>
+    </div>
+    <div id="card_box_name" class="add-to-collection-box-name"></div>
 </body>
 </html>
