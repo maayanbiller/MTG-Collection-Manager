@@ -6,32 +6,28 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
         function flip_card_img() {
-            var img = document.getElementById("card_img");
-            if (img.src.includes("front")) {
-                img.src = img.src.replace("front", "back");
+            var img = $("#card_img");
+            if (img.attr('src').includes("front")) {
+                img.attr('src', img.attr('src').replace("front", "back"));
             } else {
-                img.src = img.src.replace("back", "front");
+                img.attr('src', img.attr('src').replace("back", "front"));
             }
         }
 
         function show_or_hide_object(object_id) {
-            var object = document.getElementById(object_id);
-            if (object.style.display != "block") {
-                object.style.display = "block";
-            } else {
-                object.style.display = "none";
-            }
+            $("#" + object_id).toggle("slow");
         }
 
         function get_checkbox_val(checkbox_id) {
-            return document.getElementById(checkbox_id).checked
+            return $("#" + checkbox_id).prop("checked");
         }
 
         function get_textbox_val(textbox_id) {
-            return document.getElementById(textbox_id).value
+            return $("#" + textbox_id).val();
         }
 
-        function add_to_collection(edition, collector_num, box, is_foil) {
+        function add_to_collection(edition, collector_num, is_foil) {
+            var box = $("#card_default_box").val();
             $.ajax({
                 type: "GET",
                 url: `/add_to_cards_collection/${edition}/${collector_num}/${box}/${is_foil}`,
@@ -39,8 +35,7 @@
                     $("#card_box_name").text(`Card added to box - ${resp}`);
                 }
             });
-            var object = document.getElementById("add_to_collection_form");
-            object.style.display = "none";
+            $("#add_to_collection_form").toggle("slow");
         }
 
         function add_to_deck(edition, collector_num, box, is_foil, is_commander) {
@@ -51,9 +46,32 @@
                     $("#card_box_name").text(`Card added to deck - ${resp}`);
                 }
             });
-            var object = document.getElementById("add_to_deck_form");
-            object.style.display = "none";
+            $("#add_to_deck_form").toggle("slow");
         }
+
+        function update_default_box () {
+            var color_id = '{{ front_card.color_identity }}';
+            var is_foil = get_checkbox_val("is_foil");
+            var nonfoil_price = {{ front_card.nonfoil_price }};
+            var foil_price = {{ front_card.foil_price }};
+            $.ajax({
+                type: "GET",
+                url: `/get_box_for_card/${color_id}/${is_foil}/${nonfoil_price}/${foil_price}`,
+                success: function (resp) {
+                    if (resp != 'flase') {
+                        $("#card_default_box").text(`Default box - ${resp}`);
+                        $("#card_default_box").val(resp);
+                    }
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            update_default_box();
+            $("#add_to_collection_foil_checkbox").on('change', function () {
+                update_default_box();
+            });
+        });
     </script>
 </head>
 <body>
@@ -64,9 +82,14 @@
         <input type="text" name="name" placeholder="search in collection">
         <input type="submit" value="Search">
     </form>
+    <br>
+    <form action="/search" method="get">
+        <input type="text" name="name" placeholder="search for any card">
+        <input type="submit" value="Search">
+    </form>
 
     <div class="in_page_card_img">
-        <img id="card_img" title={{ front_card.name }} src={{ front_card.img_url }} width="400">
+        <img id="card_img" title="{{ front_card.name }}" src="{{ front_card.img_url }}" width="400">
     </div>
 
     {% for card in [front_card, back_card] %}
@@ -116,11 +139,12 @@
     <button type="button" onclick="show_or_hide_object('add_to_deck_form')">Add to deck</button>
     <br><br>
     <div id="add_to_collection_form" class="add-to-collection-form">
+        <div id="card_default_box" class="card-page-default-box">Default Box</div>
         <label class="add-to-collection-foil-checkbox">Foil
             <input id="add_to_collection_foil_checkbox" type="checkbox">
             <span class="add-to-collection-foil-checkbox-checkmark"></span>
         </label>
-        <button class=add-to-collection-add-button" type="button" onclick="add_to_collection('{{ front_card.edition }}', '{{ front_card.collector_num }}', 'rand', get_checkbox_val('add_to_collection_foil_checkbox'))">Add</button>
+        <button class=add-to-collection-add-button" type="button" onclick="add_to_collection('{{ front_card.edition }}', '{{ front_card.collector_num }}', get_checkbox_val('add_to_collection_foil_checkbox'))">Add</button>
     </div>
 
     <div id="add_to_deck_form" class="add-to-deck-form">

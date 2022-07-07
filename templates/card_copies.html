@@ -4,6 +4,63 @@
     <link rel="stylesheet" href="/static/style.css">
     <title>{{ name }}</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        function remove_card(card_id) {
+            $.ajax({
+                type: "GET",
+                url: `/remove_card_from_collection/${card_id}`,
+                success: function () {
+                    location = location;
+                }
+            });
+        }
+
+        function show_or_hide_status_change_forms() {
+            $(".change-copy-status-form").toggle("slow");
+            $(".remove-card-accept-div").hide("slow");
+            $(".move-box-accept-div").hide("slow");
+        }
+
+        function move_box(card_id, box_name) {
+            $.ajax({
+                type: "GET",
+                url: `/move_card_to_box/${card_id}/${box_name}`,
+                success: function () {
+                    location = location;
+                }
+            });
+        }
+
+        function get_box_for_card(card_id) {
+            $.ajax({
+                type: "GET",
+                url: `/get_card_from_collection/${card_id}`,
+                success: function (card) {
+                    $.ajax({
+                        type: "GET",
+                        url: `/get_box_for_card/${card['color_identity']}/${card['is_foil']}/${card['nonfoil_price']}/${card['foil_price']}`,
+                        success: function (box) {
+                            if (box) {
+                                $(`#default_box_option${card_id}`).val(box);
+                                $(`#default_box_option${card_id}`).text(`Default Box - ${box}`);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function toggle_move_box_form(event) {
+            var card_id = event.target.attributes['card_id'].value
+            $(`#move_box_accept${card_id}`).toggle('slow');
+            get_box_for_card(card_id);
+        }
+
+        $(document).ready(function() {
+            $(".move-box-button").click(toggle_move_box_form);
+        });
+
+    </script>
 </head>
 <body>
     <a href="/home">
@@ -16,14 +73,42 @@
 
     {% for card in decks_copies + other_copies %}
         <div class="in_search_card_img">
-            <a href="/card/{{ card['card'].collector_num }}/{{ card['card'].edition }}"><img title="{{ card['card'].name }}" src="{{ card['card'].img_url }}" width="200"></a>
+            <a href="/card/{{ card['card'].collector_num }}/{{ card['card'].edition }}?copy_id={{card['ID']}}"><img title="{{ card['card'].name }}" src="{{ card['card'].img_url }}" width="200"></a>
             {% if (card['is_foil'] and card['card'].foil_price != -1) or card['card'].nonfoil_price == -1 %}
                 <p class="card_price_search">foil : {{ card['card'].foil_price }}$</p>
             {% else %}
                 <p class="card_price_search">{{ card['card'].nonfoil_price }}$</p>
             {% endif %}
             <p class="card-box-in-copies-view">{{ card['box'] }}</p>
+            <div class="change-copy-status-form">
+                <button type="button" onclick="$('#remove_card_accept{{card['ID']}}').toggle('slow')">Remove</button>
+                <button type="button" class="move-box-button" card_id="{{card['ID']}}">Move box</button>
+            </div>
+            <div class="remove-card-accept-div" id="remove_card_accept{{card['ID']}}">
+                Are You Sure?
+                <button type="button" onclick="remove_card({{card['ID']}})">Yes</button>
+                <button type="button" onclick="$('#remove_card_accept{{card['ID']}}').hide()">No</button>
+            </div>
+            <div class="move-box-accept-div" id="move_box_accept{{card['ID']}}">
+                <select id="box_to_move_to{{card['ID']}}" placeholder="box name">
+                    <option id="default_box_option{{card['ID']}}" value="{}">Default Box</option>
+                    {% for deck in decks %}
+                        <option value="{{ deck }}">{{ deck }}</option>
+                    {% endfor %}
+                </select>
+<!--                <input id="box_to_move_to{{card['ID']}}" type="text" placeholder="box name" list="boxes">-->
+<!--                <datalist id="boxes">-->
+<!--                    <option id="default_box_option{{card['ID']}}" value="{}">Default Box</option>-->
+<!--                    {% for box in decks %}-->
+<!--                        <option value="{{ box }}">-->
+<!--                    {% endfor %}-->
+<!--                </datalist>-->
+                <button type="button" onclick="move_box({{card['ID']}}, $('#box_to_move_to{{card['ID']}}').val())">Move</button>
+            </div>
         </div>
     {% endfor %}
+    <div class="edit-copies-button" onclick="show_or_hide_status_change_forms()">
+        Edit
+    </div>
 </body>
 </html>

@@ -3,6 +3,86 @@
 <head>
     <link rel="stylesheet" href="/static/style.css">
     <title>Deck - {{ deck_name }}</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        function toggle_basic_lands_form() {
+            $('#basic_lands_form').toggle();
+        }
+
+        function change_basics_count_color(element_id) {
+            var element = $('#' + element_id);
+                if (element.text() != element.attr('initial_val')) {
+                    element.css('color', 'red');
+                } else {
+                    element.css('color', 'black');
+                }
+        }
+
+        $(document).ready(function() {
+            $(".add-basic-lands-button").click(function() {
+                $('#basic_lands_form').toggle("slow");
+            });
+
+            $(".add-basics-form-minus-button").click(function() {
+                var id = $(this).attr('id');
+                var land_name = id.split('_')[2];
+                if ($(`#${land_name}_count`).text() != '0') {
+                    $(`#${land_name}_count`).text($(`#${land_name}_count`).text() - 1);
+                }
+                change_basics_count_color(`${land_name}_count`);
+                });
+
+            $(".add-basics-form-plus-button").click(function() {
+                var id = $(this).attr('id');
+                var land_name = id.split('_')[2];
+                $(`#${land_name}_count`).text(parseInt($(`#${land_name}_count`).text()) + 1);
+                change_basics_count_color(`${land_name}_count`);
+                });
+
+            $(".add-basic-lands-reset-button").click(function() {
+                $(".basics-count").each(function() {
+                    $(this).text($(this).attr('initial_val'));
+                    $(this).css('color', 'black');
+                });
+            });
+
+            $(".add-basic-lands-submit-button").click(function() {
+                $(".basics-count").each(function() {
+                    if ($(this).text() != $(this).attr('initial_val')) {
+                        var land_name = $(this).attr('id').split('_')[0];
+                        if (land_name.slice(0, 4) == 'Snow') {
+                            land_name = land_name.replace('Snow-', 'Snow-Covered ');
+                        }
+                        var count = $(this).text();
+                        var deck_name = '{{ deck_name }}';
+                        $.ajax({
+                            type: "GET",
+                            url: `/update_basic_land_count/${deck_name}/${land_name}/${count}`,
+                            success: function () {
+                                location = location;
+                            }
+                        });
+                    }
+                });
+            });
+
+            $(".in-deck-card-image").hover(function() {
+                    var cardObject = $(this);
+                    cardObject.attr("is_hovered", "true");
+                    setTimeout(function(){
+                        if (cardObject.attr("is_hovered") == "true") {
+                            cardObject.animate({
+                                paddingBottom:'240px'
+                            });}
+                    }, 300);
+                }, function() {
+                    $(this).attr("is_hovered", "false");
+                    $(this).animate({
+                         paddingBottom:'0px'
+                      });
+                });
+        });
+    </script>
 </head>
 <body>
     <a href="/home">
@@ -14,27 +94,58 @@
     </form>
     <div class="in-page-box-name">{{ deck_name }}</div>
     <div class="in-page-box-description">{{ deck_description }}</div>
-    {% for card in commanders %}
-        <div class="deck_view_commander_img">
-            <a href="/card/{{ card.collector_num }}/{{ card.edition }}"><img title={{ card.name }} src="{{ card.img_url }}" width="400"></a>
-            <p class="card_name_search">{{ card.name }}</p>
-            {% if card.nonfoil_price != -1 %}
-                <p class="card_price_search">{{ card.nonfoil_price }}$</p>
-            {% elif card.foil_price != -1 %}
-                <p class="card_price_search">foil : {{ card.foil_price }}$</p>
-            {% endif %}
+    <div class="commanders-in-deck-view">
+        {% for card in commanders %}
+            <div class="deck-view-commander-img">
+                <a href="/card/{{ card['card'].collector_num }}/{{ card['card'].edition }}"><img title="{{ card['card'].name }}" src="{{ card['card'].img_url }}" width="400"></a>
+                <p class="card_name_search">{{ card['card'].name }}</p>
+                {% if card['card'].nonfoil_price != -1 %}
+                    <p class="card_price_search">{{ card['card'].nonfoil_price }}$</p>
+                {% elif card['card'].foil_price != -1 %}
+                    <p class="card_price_search">foil : {{ card['card'].foil_price }}$</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+    <button type="button" class="add-basic-lands-button">Add basic lands +</button>
+    <div class="add-basic-lands-form" id="basic_lands_form">
+        {% for basic_land in basic_lands %}
+            <div class="add-basic-lands-image">
+                <img src="{{ basic_land.img_url }}" width="150">
+                <p class="add-basic-lands-name">{{ basic_land.name }}</p>
+                <button class="add-basics-form-minus-button" id="minus_button_{{ basic_land.name }}">-</button>
+                <span class="basics-count" id="{{ basic_land.name }}_count" initial_val="{{ basic_lands_count[basic_land.name] }}">{{ basic_lands_count[basic_land.name] }}</span>
+                <button class="add-basics-form-plus-button" id="plus_button_{{ basic_land.name }}">+</button>
+                <br>
+                {% if basic_land.name != 'Wastes' %}
+                    <button class="add-basics-form-minus-button add-basics-snow-button" id="minus_button_{{ 'Snow-' + basic_land.name }}">-</button>
+                    <span class="basics-count" id="{{ 'Snow-' + basic_land.name }}_count" initial_val="{{ basic_lands_count['Snow-Covered ' + basic_land.name] }}">{{ basic_lands_count['Snow-Covered ' + basic_land.name] }}</span>
+                    <button class="add-basics-form-plus-button add-basics-snow-button" id="plus_button_{{ 'Snow-' + basic_land.name }}">+</button>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <div style="clear: both;">
+            <div class="add-basic-lands-reset-button">Reset</div>
+            <div class="add-basic-lands-submit-button">Submit</div>
         </div>
-    {% endfor %}
-    {% for card in cards %}
-        <div class="in_search_card_img">
-            <a href="/card/{{ card.collector_num }}/{{ card.edition }}"><img title={{ card.name }} src={{ card.img_url }} width="200"></a>
-            <p class="card_name_search">{{ card.name }}</p>
-            {% if card.nonfoil_price != -1 %}
-                <p class="card_price_search">{{ card.nonfoil_price }}$</p>
-            {% elif card.foil_price != -1 %}
-                <p class="card_price_search">foil : {{ card.foil_price }}$</p>
-            {% endif %}
-        </div>
-    {% endfor %}
+    </div>
+    <div style="clear: both;">
+        {% for mana_val in range(0, 7) %}
+            <div class="mana-val-column-in-deck">
+                {% for card in cards %}
+                    {% if card['card'].mana_value == mana_val %}
+                        <div class="in-deck-card-image" is_hovered="false">
+                            <a href="/card/{{ card['card'].collector_num }}/{{ card['card'].edition }}"><img title="{{ card['card'].name }}" src="{{ card['card'].img_url }}" width="200"></a>
+                                {% if card['is_foil'] and card['card'].foil_price != -1 %}
+                                    <p class="deck-view-card-price">✶{{ card['card'].foil_price }}$</p>
+                                {% elif card['card'].nonfoil_price != -1 %}
+                                    <p class="deck-view-card-price">{{ card['card'].nonfoil_price }}$</p>
+                                {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
 </body>
 </html>

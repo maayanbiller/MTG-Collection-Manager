@@ -51,6 +51,7 @@ c = conn.cursor()
 
 
 # c.execute("""CREATE TABLE cards_collection (
+#             ID INTEGER PRIMARY KEY AUTOINCREMENT,
 #             edition text,
 #             collector_num text,
 #             box text,
@@ -70,7 +71,7 @@ c = conn.cursor()
 # c.execute("""CREATE TABLE decks_basic_lands (
 #             name text,
 #             deck_name text,
-#             count int
+#             count int,
 #             )""")
 
 
@@ -167,15 +168,22 @@ def search_card_urls_in_database(name):
 
 
 def get_color_identity_from_HTML(HTML):
-    # TODO: fix hybrid mana and color indicators
-    card_colors = {'"one white mana">{W}': False, '"one blue mana">{U}': False, '"one black mana">{B}': False, '"one red mana">{R}': False, '"one green mana">{G}': False}
-    for color in card_colors:
-        if color in HTML:
-            card_colors[color] = True
+    card_colors = {'W': False, 'U': False, 'B': False, 'R': False, 'G': False}
+    for html_part in re.findall(r"<span class=\"card-text-mana-cost\">.*?</span>", HTML, re.DOTALL) + \
+            re.findall(r"<div class=\"card-text-box\".*?</div                               >", HTML, re.DOTALL): # find all mana costs and text boxes
+        for mana in re.findall(r"{(?P<mana>.*?)}", html_part, re.DOTALL):
+            for color in card_colors:
+                if color in mana:
+                    card_colors[color] = True
+    for color_indicator in re.findall(r"<abbr class=\"color-indicator color-indicator-(?P<colors>.*?)\".*?</abbr>", HTML, re.DOTALL):
+        for color in card_colors:
+            if color in color_indicator:
+                card_colors[color] = True
+
     color_identity = ''
     for color in card_colors:
         if card_colors[color]:
-            color_identity += color[-2]
+            color_identity += color
     if color_identity == '':
         color_identity = 'C'
     if len(color_identity) > 1:
@@ -332,7 +340,10 @@ def add_cards_by_name(name, get_all_versions_of_card=False):
             # if the search sends you directly to the only card that in this search
             s = re.search(r"<a title=\".*?\".*?href=\"(?P<url>https://scryfall.com/card/(?P<edition>.*?)/(?P<collector_num>.*?)/(?P<card_name>.*?))\"/*?>en</a>",
                 HTML.decode("utf-8"), re.DOTALL)
-            is_db_changed = add_card_from_details(s['url'], s['edition'], s['collector_num'], s['card_name']) or is_db_changed
+            is_dfc = False
+            if re.search(r"<button.*?title=\"Turn Over Card\".*?</button>", HTML.decode("utf-8"), re.DOTALL):
+                is_dfc = True
+            is_db_changed = add_card_from_details(s['url'], s['edition'], s['collector_num'], s['card_name'], is_dfc=is_dfc) or is_db_changed
             # results = [(s['url'], s['edition'], s['collector_num'], s['card_name'])]
         else:
             for card_details in one_faced_cards:
@@ -351,12 +362,18 @@ def add_box_to_boxes(box_name, box_type, description):
         c = conn.cursor()
         c.execute("INSERT INTO boxes (box_name, type, description) VALUES (:box_name, :box_type, :description)",
                   {'box_name': box_name, 'box_type': box_type, 'description': description})
+        if box_type == 'deck':
+            c.execute("SELECT name FROM basic_lands")
+            for land in c.fetchall():
+                c.execute("INSERT INTO decks_basic_lands VALUES (:name, :deck_name, 0)", {'name': land[0], 'deck_name': box_name})
+
 
 
 def add_card_to_collection(edition, collector_num, box, is_foil, is_commander=False):
     with sqlite3.connect('cards database.db') as conn:
         c = conn.cursor()
-        c.execute("INSERT INTO cards_collection VALUES (:edition, :collector_num, :box, :is_foil, :is_commander)",
+        c.execute("""INSERT INTO cards_collection (edition, collector_num, box, is_foil, is_commander)
+                  VALUES (:edition, :collector_num, :box, :is_foil, :is_commander)""",
                   {'edition': edition, 'collector_num': collector_num, 'box': box, 'is_foil': is_foil, 'is_commander': is_commander})
 
 
@@ -374,23 +391,18 @@ def get_cards_in_collection_by_name(name):
         return cards
 
 
-def get_box_for_card():
-    boxes = get_all_boxes()[0]
-    return random.choice(boxes)
-
-
 def get_all_copies_in_collection(card_name):
     with sqlite3.connect('cards database.db') as conn:
         c = conn.cursor()
-        c.execute("""SELECT cc.box,cc.is_foil,cc.is_commander, c.* from cards_collection as cc JOIN cards as c on
+        c.execute("""SELECT cc.ID,cc.box,cc.is_foil,cc.is_commander, c.* from cards_collection as cc JOIN cards as c on
                   cc.edition=c.edition AND cc.collector_num=c.collector_num WHERE c.name=:card_name ORDER BY cc.box""",
                   {'card_name': card_name})
         decks_copies = []
         other_copies = []
         rows = c.fetchall()
         for row in rows:
-            details = {'box': row[0], 'is_foil': row[1], 'is_commander': row[2],
-                       'card': Card(row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15])}
+            details = {'ID': row[0], 'box': row[1], 'is_foil': row[2], 'is_commander': row[3],
+                       'card': Card(row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16])}
             c.execute("SELECT type from boxes where box_name=:box", {'box': details['box']})
             if c.fetchone()[0] == 'deck':
                 decks_copies.append(details)
@@ -420,20 +432,20 @@ def get_box_from_name(box_name):
 def get_all_cards_in_box(box_name, get_commanders=False):
     with sqlite3.connect('cards database.db') as conn:
         c = conn.cursor()
-        c.execute("SELECT c.*,cc.is_commander from cards_collection as cc JOIN cards as c on cc.edition=c.edition AND cc.collector_num=c.collector_num WHERE cc.box=:box_name", {'box_name': box_name})
+        c.execute("SELECT c.*,cc.is_foil,cc.is_commander from cards_collection as cc JOIN cards as c on cc.edition=c.edition AND cc.collector_num=c.collector_num WHERE cc.box=:box_name", {'box_name': box_name})
         cards = []
         commanders = []
         for card in c.fetchall():
             if card[-1] == True:
-                commanders.append(Card(card[0], card[1], card[2], card[3], card[4], card[5], card[6], card[7], card[8], card[9],
-                              card[10], card[11], card[12]))
+                commanders.append({'card': Card(card[0], card[1], card[2], card[3], card[4], card[5], card[6], card[7],
+                                   card[8], card[9], card[10], card[11], card[12]), 'is_foil': card[-2]})
             else:
-                cards.append(Card(card[0], card[1], card[2], card[3], card[4], card[5], card[6], card[7], card[8], card[9],
-                                  card[10], card[11], card[12]))
+                cards.append({'card': Card(card[0], card[1], card[2], card[3], card[4], card[5], card[6], card[7],
+                              card[8], card[9], card[10], card[11], card[12]), 'is_foil': card[-2]})
     return cards, commanders if get_commanders else cards
 
 
-def get_all_boxes():
+def get_all_boxes(get_all=False):
     with sqlite3.connect('cards database.db') as conn:
         c = conn.cursor()
         c.execute("SELECT box_name, type FROM boxes")
@@ -444,7 +456,46 @@ def get_all_boxes():
                 decks.append(box[0])
             else:
                 non_deck_boxes.append(box[0])
+        if get_all:
+            return non_deck_boxes + decks
         return non_deck_boxes, decks
+
+
+def get_basic_lands_in_deck(deck, get_all_basics=False, get_count=False):
+    with sqlite3.connect('cards database.db') as conn:
+        c = conn.cursor()
+        c.execute("""SELECT c.*,dbl.count FROM decks_basic_lands as dbl JOIN cards as c JOIN basic_lands bl on
+                dbl.name=c.name AND c.name=bl.name WHERE dbl.deck_name=:deck order by bl.land_order""", {'deck': deck})
+        cards = []
+        all_basic_lands = []
+        counts = {'Plains': 0, 'Island': 0, 'Swamp': 0, 'Mountain': 0, 'Forest': 0, 'Wastes': 0,
+                  'Snow-Covered Plains': 0, 'Snow-Covered Island': 0, 'Snow-Covered Swamp': 0,
+                  'Snow-Covered Mountain': 0, 'Snow-Covered Forest': 0}
+        for basic_land in c.fetchall():
+            counts[basic_land[0]] = basic_land[-1]
+            card = Card(basic_land[0], basic_land[1], basic_land[2], basic_land[3], basic_land[4], basic_land[5],
+                        basic_land[6], -1, -1, basic_land[9], basic_land[10], basic_land[11],
+                        basic_land[12])  # -1 for prices
+            if card.name[:5] != 'Snow-':
+                all_basic_lands.append(card)
+            for i in range(basic_land[-1]):
+                cards.append(card)
+        return_value = {'cards': cards}
+        if get_all_basics:
+            return_value['all_basic_lands'] = all_basic_lands
+        if get_count:
+            return_value['counts'] = counts
+    return return_value
+
+
+def get_all_basic_lands(get_snow=False):  # returns a list of all basic lands except for snow lands *not only basic lands in collection
+    with sqlite3.connect('cards database.db') as conn:
+        c = conn.cursor()
+        names = ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest', 'Wastes']
+        if get_snow:
+            names = ['Snow-Covered ' + name for name in names[:5]] + names[5:]
+        c.execute(f"""SELECT name,img_url FROM cards WHERE name in ('{"','".join(names)}')""")
+        return [{'name': bl[0], 'img_url': bl[1]} for bl in c.fetchall()]
 
 
 def convert_name_to_url_name(name):
@@ -477,8 +528,14 @@ def box_page(box_name):
 @app.route('/deck/<deck_name>')
 def deck_page(deck_name):
     cards, commanders = get_all_cards_in_box(deck_name, get_commanders=True)
+    basics = get_basic_lands_in_deck(deck_name, get_all_basics=True, get_count=True)
+    basic_lands, basic_lands_count, all_basic_lands = basics['cards'], basics['counts'], basics['all_basic_lands']
+    for card in basic_lands:
+        cards.append({'card': card, 'is_foil': False})
     deck_description = get_box_from_name(deck_name)[2]
-    return render_template('deck.html', cards=cards, commanders=commanders, deck_name=deck_name, deck_description=deck_description)
+    return render_template('deck.html', cards=cards, commanders=commanders, deck_name=deck_name,
+                           deck_description=deck_description, basic_lands=all_basic_lands,
+                           snow_basic_lands=get_all_basic_lands(get_snow=True), basic_lands_count=basic_lands_count)
 
 
 @app.route('/search')
@@ -494,6 +551,15 @@ def search_in_collection():
     keyword = request.args.get('name')
     cards = get_cards_in_collection_by_name(keyword)
     return render_template('collection_search_res.html', cards=cards, keyword=keyword)
+
+
+@app.route('/update_basic_land_count/<deck>/<name>/<count>')
+def update_basic_land_count(deck, name, count):
+    deck = decode_card_name(deck)
+    with sqlite3.connect('cards database.db') as conn:
+        c = conn.cursor()
+        c.execute("""UPDATE decks_basic_lands SET count=:count WHERE name=:name and deck_name=:deck""", {'deck':deck, 'name': name, 'count': count})
+    return 'updated'
 
 
 @app.route('/update_db_with_search_res/<keyword>')
@@ -514,14 +580,13 @@ def card_all_versions(url_name):
 def update_db_with_card_versions(url_name):
     card_name = get_card_in_db_by_url_name(url_name).name
     front_card = get_cards_in_db_by_name(card_name, is_exact_match=True)[0]
-    # is_dfc = True if get_card_in_db_by_primary_key(f'B{front_card.collector_num[1:]}', front_card.edition) else False
-    # is_db_changed = add_all_versions_of_card(front_card.name, is_dfc=is_dfc)
     is_db_changed = add_cards_by_name(front_card.name, get_all_versions_of_card=True)
     return 'changed' if is_db_changed else 'not changed'
 
 
 @app.route('/card/<collector_num>/<edition>')
 def card_page(collector_num, edition):
+    copy_id = request.args.get('copy_id', default=None)
     front_card = get_card_in_db_by_primary_key(collector_num, edition)
     back_card = get_card_in_db_by_primary_key(f'B{front_card.collector_num[1:]}', front_card.edition)
     for card in [front_card, back_card]:
@@ -533,21 +598,66 @@ def card_page(collector_num, edition):
                 card.text_list[-1] = last_text_pile[:idx]
                 card.text_list.append(f"/{t[1].replace('/', 'or')}/")
                 card.text_list.append(last_text_pile[idx+len(t[0]):].replace('<i>', '').replace('</i>', ''))
-    decks_copies, other_copies = get_all_copies_in_collection(front_card.name)
-    return render_template('card.html', front_card=front_card, back_card=back_card, decks=get_all_boxes()[1],
-                           decks_copies=decks_copies, other_copies=other_copies)
+    return render_template('card.html', front_card=front_card, back_card=back_card, decks=get_all_boxes()[1], copy_id=copy_id)
 
 
 @app.route('/card-copies/<name>')
 def card_copies(name):
     decks_copies, other_copies = get_all_copies_in_collection(name)
-    return render_template('card_copies.html', decks_copies=decks_copies, other_copies=other_copies, name=name)
+    return render_template('card_copies.html', decks_copies=decks_copies, other_copies=other_copies, name=name, decks=get_all_boxes()[1])
+
+
+@app.route('/remove_card_from_collection/<card_id>')
+def remove_card_from_collection(card_id):
+    with sqlite3.connect('cards database.db') as conn:
+        c = conn.cursor()
+        c.execute("DELETE FROM cards_collection WHERE ID=:card_id", {'card_id': card_id})
+    return 'removed'
+
+
+@app.route('/get_card_from_collection/<card_id>')
+def get_card_from_collection(card_id):
+    with sqlite3.connect('cards database.db') as conn:
+        c = conn.cursor()
+        c.execute("SELECT c.*,cc.is_foil from cards_collection as cc JOIN cards as c on cc.edition=c.edition AND cc.collector_num=c.collector_num WHERE cc.ID=:card_id", {'card_id': card_id})
+        card = c.fetchone()
+    return {**Card(card[0], card[1], card[2], card[3], card[4], card[5], card[6], card[7], card[8], card[9], card[10],
+                   card[11], card[12]).__dict__, **{'is_foil': card[13]}}
+
+
+@app.route('/get_box_for_card/<color_id>/<is_foil>/<nonfoil_price>/<foil_price>')
+def get_box_for_card(color_id, is_foil, nonfoil_price, foil_price):
+    box_name = ''
+    if len(color_id) == 1:  # if color_id is a single color(W,U,B...) or colorless(C)
+        box_name += color_id
+    else:  # if card is a multicolored
+        box_name += 'M'
+    price = foil_price if is_foil == '1' else nonfoil_price
+    if price == '-1':
+        return 'false'  # if price is -1, it means that card has no price
+    if float(price) >= 2:
+        box_name = '2$+'
+    elif 0.5 <= float(price) <= 2 and color_id != 'C' and color_id[0] != 'M':
+        box_name += ' 0.5$-2$'
+    elif 0 <= float(price) <= 0.5 and color_id != 'C' and color_id[0] != 'M':
+        box_name += ' 0$-0.5$'
+    elif color_id != 'C' and color_id[0] != 'M':
+        return 'false'
+    return box_name
+
+
+@app.route('/move_card_to_box/<card_id>/<box_name>')
+def move_card_to_box(card_id, box_name):
+    if box_name == 'Get Proper Box':
+        box_name = get_box_for_card()
+    with sqlite3.connect('cards database.db') as conn:
+        c = conn.cursor()
+        c.execute("UPDATE cards_collection SET box=:box_name WHERE ID=:card_id", {'card_id': card_id, 'box_name': box_name})
+    return 'moved'
 
 
 @app.route('/add_to_cards_collection/<edition>/<collector_num>/<box>/<is_foil>')
 def add_to_cards_collection(edition, collector_num, box, is_foil):
-    if box == 'rand':
-        box = get_box_for_card()
     add_card_to_collection(edition, collector_num, box, True if is_foil == 'true' else False)
     return box
 

@@ -1,11 +1,120 @@
-.deck_view_commander_img {
+.deck-view-commander-img {
     border: 1px solid #334400;
     border-radius: 5px;
     background-color: #fff;
     padding: 20px;
-    margin: 20px 100px 200px 20px;
+    margin: 20px 10px 20px 20px;
     float: left;
 }
+.commanders-in-deck-view {
+    background-color: fff;
+    padding: 20px;
+    margin: 20px 70px 50px 20px;
+    float: left;
+    width: 100%;
+}
+.mana-val-column-in-deck {
+    background-color: #fff;
+    width: min-content;
+    float: left;
+    padding: 20px 10px 300px 10px;
+}
+.mana-val-column-in-deck:hover {
+    padding-bottom: 60px;
+}
+.in-deck-card-image {
+    position: sticky;
+    height: 40px;
+    min-width: 0px;
+    z-index: 1;
+}
+.deck-view-card-price {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 30px;
+    font-weight: bold;
+    color: #00000085;
+    margin-top: -65px;
+    margin-left: 65px;
+}
+.add-basic-lands-button {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 25px;
+    border: 1px solid #334400;
+    border-radius: 5px;
+    background-color: #fff;
+    padding: 20px;
+    margin: 20px 10px 20px 20px;
+    width: fit-content;
+    height: fit-content;
+    float: left;
+    cursor: pointer;
+}
+.add-basic-lands-button:hover {
+    background-color: #ddd;
+}
+.add-basic-lands-form {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 25px;
+    border: 1px solid #334400;
+    border-radius: 5px;
+    background-color: #fff;
+    padding: 20px 0px 5px 20px;
+    margin: 20px 10px 20px 20px;
+    width: fit-content;
+    height: fit-content;
+    float: left;
+    display: none;
+}
+.add-basic-lands-form button {
+    font-weight: bold;
+    font-size: 25px;
+    text-align: center;
+    width: 50px;
+    height: 50px;
+    border: 1px solid #334400;
+    border-radius: 100%;
+    background-color: #fff;
+    cursor: pointer;
+}
+.add-basic-lands-form button:hover {
+    background-color: #ddd;
+}
+.add-basic-lands-reset-button {
+    border: 1px solid #334400;
+    border-radius: 5px;
+    background-color: #fff;
+    padding: 20px;
+    margin: 20px 10px 20px 20px;
+    float: left;
+    cursor: pointer;
+}
+.add-basic-lands-reset-button:hover {
+    background-color: #ddd;
+}
+.add-basic-lands-submit-button {
+    border: 1px solid #334400;
+    border-radius: 5px;
+    background-color: #fff;
+    padding: 20px;
+    margin: 20px 10px 20px 20px;
+    float: left;
+    cursor: pointer;
+}
+.add-basic-lands-submit-button:hover {
+    background-color: #ddd;
+}
+.add-basic-lands-image {
+    text-align: center;
+    float: left;
+    margin: 2px;
+}
+.add-basics-snow-button {
+    background-image: url(/static/snow40.png);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+}
+
 .in_search_card_img {
     border: 1px solid #334400;
     border-radius: 5px;
@@ -62,6 +171,10 @@
     font-weight: bold;
     color: #334400;
     padding-left: 470px;
+}
+.card-page-default-box {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 18px;
 }
 
 
@@ -299,27 +412,107 @@
 
 .deck-in-boxes-view {
     font: bold 20px/30px Helvetica, Sans-Serif;
-    font-size: 70px;
+    font-size: 30px;
     user-select: none;
     color: #000;
     border: 1px solid #334400;
     border-radius: 5px;
     background-color: #fff;
-    padding: 130px 70px 130px 70px;
-    margin: 20px;
+    padding: 50px;
+    margin: 10px;
     float: left;
+    //background-image: linear-gradient(rgba(255,255,255,0.3), rgba(255,255,255,0.3)), url("https://c1.scryfall.com/file/scryfall-cards/normal/front/9/2/92ea1575-eb64-43b5-b604-c6e23054f228.jpg?1571197150");;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 .box-in-boxes-view {
     font: bold 20px/30px Helvetica, Sans-Serif;
-    font-size: 70px;
+    font-size: 30px;
     user-select: none;
     color: #000;
     border: 1px solid #334400;
     border-radius: 5px;
     background-color: #fff;
-    padding: 130px 70px 130px 70px;
+    padding: 50px;
+    margin: 10px;
+    float: left;
+}
+.deck-in-boxes-view:hover{
+    background-color: #ddd;
+}
+.box-in-boxes-view:hover{
+    background-color: #ddd;
+}
+.box-in-copies-view:hover{
+    background-color: #ddd;
+}
+.add-box-button-in-boxes-view {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 30px;
+    user-select: none;
+    color: #014a0a;
+    border: 1px solid #334400;
+    border-radius: 5px;
+    background-color: #fff;
+    padding: 50px;
+    margin: 10px;
+    float: left;
+}
+.add-box-button-in-boxes-view:hover {
+    background-color: rgb(157 255 178 / 55%);
+}
+.add_box_form{
+    display: none;
+    padding: 100px
+}
+.W-box {
+    background-color: #edefb490;
+}
+.W-box:hover{
+    background-color: #edefb4;
+}
+.U-box {
+    background-color: #c2cfff90;
+}
+.U-box:hover{
+    background-color: #c2cfff;
+}
+.B-box {
+    background-color: #5a5a5a90;
+}
+.B-box:hover{
+    background-color: #5a5a5a;
+}
+.R-box {
+    background-color: #ff6b6b90;
+}
+.R-box:hover{
+    background-color: #ff6b6b;
+}
+.G-box {
+    background-color: #73ff7390;
+}
+.G-box:hover{
+    background-color: #73ff73;
+}
+.edit-copies-button {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 40px;
+    user-select: none;
+    color: #a52527;
+    border: 1px solid #334400;
+    border-radius: 5px;
+    background-color: #fff;
+    padding: 50px 70px 50px 70px;
     margin: 20px;
     float: left;
+}
+.edit-copies-button:hover {
+    background-color: rgb(250 200 200 / 55%);
+}
+.change-copy-status-form {
+    display: none;
 }
 .card-box-in-copies-view {
     font: bold 20px/30px Helvetica, Sans-Serif;
@@ -338,35 +531,16 @@
     margin: 20px;
     float: left;
 }
-.deck-in-boxes-view:hover{
-    background-color: #ddd;
-}
-.box-in-boxes-view:hover{
-    background-color: #ddd;
-}
-.box-in-copies-view:hover{
-    background-color: #ddd;
-}
-.add-box-button-in-boxes-view {
+.remove-card-accept-div {
     font: bold 20px/30px Helvetica, Sans-Serif;
-    font-size: 70px;
-    user-select: none;
-    color: #014a0a;
-    border: 1px solid #334400;
-    border-radius: 5px;
-    background-color: #fff;
-    padding: 130px 70px 130px 70px;
-    margin: 20px;
-    float: left;
-
-}
-.add-box-button-in-boxes-view:hover {
-    background-color: rgb(157 255 178 / 55%);
-}
-
-.add_box_form{
+    font-size: 20px;
+    color: #bf0000;
     display: none;
-    padding: 100px
+}
+.move-box-accept-div {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 20px;
+    display: none;
 }
 .add-box-name-input{}
 .add-box-type-input{}

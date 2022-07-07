@@ -7,26 +7,28 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
         function show_or_hide_add_box_form() {
-            var add_box_form = document.getElementById("add_box_form");
-            if (add_box_form.style.display != "block") {
-                add_box_form.style.display = "block";
-            } else {
-                add_box_form .style.display = "none";
-            }
+            $("#add_box_form").toggle();
         }
 
-
         function add_box_from_form_inputs () {
-            var name = document.getElementById("box_name_input").value
-            var box_type = document.getElementById("box_type_input").value
-            var description = document.getElementById("box_description_input").value
-            $.ajax({
-                type: "GET",
-                url: `/add_box/${name}/${box_type}?description=${description}`,
-                success: function () {
-                    location = location;
-                }
-            });
+            var name = $("#box_name_input").val();
+            var box_type = $("#box_type_input").val();
+            var description = $("#box_description_input").val();
+            if (name == "") {
+                $("#box_name_input").attr('placeholder', 'Enter box name');
+            }
+            if (box_type == "") {
+                $("#box_type_input").attr('placeholder', 'Enter box type');
+            }
+            if (name != ""  && box_type != "") {
+                $.ajax({
+                    type: "GET",
+                    url: `/add_box/${name}/${box_type}?description=${description}`,
+                    success: function () {
+                        location = location;
+                    }
+                });
+            }
         }
     </script>
 </head>
@@ -52,7 +54,7 @@
     <div style="clear: both;">
     {% for box_name in non_deck_boxes %}
         <a href="/box/{{ box_name }}">
-            <div class="box-in-boxes-view">
+            <div class="box-in-boxes-view {{ box_name[0] }}-box">
                 {{ box_name }}
             </div>
         </a>
@@ -68,11 +70,10 @@
         </label>
         <br><br>
         <label class="add-box-type-input">
-            <input id="box_type_input" placeholder="box type" list="boxes">
-            <datalist id="boxes">
-                <option value="box">
-                <option value="deck">
-            </datalist>
+            <select id="box_type_input" placeholder="box type">
+                <option value="box">box</option>
+                <option value="deck">deck</option>
+            </select>
         </label>
         <br><br>
         <label class="add-box-description-input">
