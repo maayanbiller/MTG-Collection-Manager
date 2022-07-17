@@ -38,7 +38,7 @@
                 success: function (card) {
                     $.ajax({
                         type: "GET",
-                        url: `/get_box_for_card/${card['color_identity']}/${card['is_foil']}/${card['nonfoil_price']}/${card['foil_price']}`,
+                        url: `/get_box_for_card/${card['type']}/${card['color_identity']}/${card['is_foil']}/${card['nonfoil_price']}/${card['foil_price']}`,
                         success: function (box) {
                             if (box) {
                                 $(`#default_box_option${card_id}`).val(box);

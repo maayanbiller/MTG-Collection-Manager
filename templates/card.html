@@ -50,13 +50,14 @@
         }
 
         function update_default_box () {
+            var card_type = '{{ front_card.type }}';
             var color_id = '{{ front_card.color_identity }}';
-            var is_foil = get_checkbox_val("is_foil");
-            var nonfoil_price = {{ front_card.nonfoil_price }};
-            var foil_price = {{ front_card.foil_price }};
+            var is_foil = get_checkbox_val("add_to_collection_foil_checkbox");
+            var nonfoil_price = '{{ front_card.nonfoil_price }}';
+            var foil_price = '{{ front_card.foil_price }}';
             $.ajax({
                 type: "GET",
-                url: `/get_box_for_card/${color_id}/${is_foil}/${nonfoil_price}/${foil_price}`,
+                url: `/get_box_for_card/${card_type}/${color_id}/${is_foil}/${nonfoil_price}/${foil_price}`,
                 success: function (resp) {
                     if (resp != 'flase') {
                         $("#card_default_box").text(`Default box - ${resp}`);

@@ -6,16 +6,20 @@
     <title>Search</title>
     <script >
         $(document).ready(function() {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            $("#search_in_browser_input").val(urlParams.get('name'));
+
             if ('{{ updated }}' === 'false') {
                 $.ajax({
                     beforeSend: function() {
                         $("#loadingDiv").text("loading...");
                     },
                     type: "GET",
-                    url: '/update_db_with_search_res/{{ keyword }}',
+                    url: '/update_db_with_search_res/{{ keyword.replace("'", "%27").replace("&", "%26") }}',
                     success: function (resp) {
                         if (resp == 'changed') {
-                            location = '/search?name={{ keyword }}&updated=true';
+                            location = '/search?name={{ keyword.replace("'", "%27").replace("&", "%26") }}&updated=true';
                         }
                         $("#loadingDiv").text(" ");
                     }
@@ -34,7 +38,7 @@
     </form>
     <br>
     <form action="/search" method="get">
-        <input type="text" name="name" placeholder="search for any card">
+        <input id="search_in_browser_input" type="text" name="name" placeholder="search for any card">
         <input type="submit" value="Search">
     </form>
     <div id="loadingDiv" class="search_loading_div"></div>

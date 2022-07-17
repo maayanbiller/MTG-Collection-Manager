@@ -170,7 +170,7 @@ def search_card_urls_in_database(name):
 def get_color_identity_from_HTML(HTML):
     card_colors = {'W': False, 'U': False, 'B': False, 'R': False, 'G': False}
     for html_part in re.findall(r"<span class=\"card-text-mana-cost\">.*?</span>", HTML, re.DOTALL) + \
-            re.findall(r"<div class=\"card-text-box\".*?</div                               >", HTML, re.DOTALL): # find all mana costs and text boxes
+            re.findall(r"<div class=\"card-text-box\".*?</div>", HTML, re.DOTALL): # find all mana costs and text boxes
         for mana in re.findall(r"{(?P<mana>.*?)}", html_part, re.DOTALL):
             for color in card_colors:
                 if color in mana:
@@ -230,7 +230,7 @@ def add_card_from_details(url, edition, collector_num, card_name, is_editions_ch
                 for card_details in re.findall(r"<a data-component=\"card-tooltip\".*?href=\"(?P<url>/card/(?P<edition>.*?)/(?P<collector_num>.*?)/(?P<name>.*?))\".*?</a>",
                                                HTML.decode("utf-8"), re.DOTALL):
                     url, edition, collector_num, card_name = card_details
-                    url = f'https://scryfall.com/{url}'
+                    url = f'https://scryfall.com{url}'
                     if card_name.find('/') != -1:
                         continue
                     if add_card_from_details(url, edition, collector_num, card_name, is_editions_check=True):
@@ -280,12 +280,13 @@ def add_card_from_details(url, edition, collector_num, card_name, is_editions_ch
             name_fixed = re.search(r"<span class=\"card-text-card-name\">\n *(?P<name>.*?)\n", HTML.decode("utf-8"), re.DOTALL)['name']
             name_fixed = decode_card_name(name_fixed)
             url_name = convert_name_to_url_name(name_fixed)
-            card_type = re.search(
-                r"<p class=\"card-text-type-line\".*?>\n *(?P<type>[a-zA-Z ]*) ?.*? ?(?P<subtype>[a-z&A-Z ,]*)?\n</p>",
-                HTML.decode("utf-8"), re.DOTALL)
-            type = f'{card_type["type"]} - {card_type["subtype"]}' if card_type["subtype"] else card_type["type"]
-            card_text = re.search(r"<div class=\"card-text-oracle\">\n *(?P<text>.*?)\n *</div>", HTML.decode("utf-8"), re.DOTALL)['text']
-            text = card_text.replace('<p>', ' ').replace('</p>', '').replace('\n\n', '\n')
+            card_type = re.search(r"<p class=\"card-text-type-line\".*?>\n *(<abbr class=\"color-indicator.*?</abbr>)? *(?P<type>[a-zA-Z ]*)( — (?P<subtype>[a-z&A-Z ,]*))?\n</p>",
+                                  HTML.decode("utf-8"), re.DOTALL)
+            type = f'{card_type["type"]} — {card_type["subtype"]}' if card_type["subtype"] else card_type["type"]
+            card_text = re.search(r"<div class=\"card-text-oracle\">\n *(?P<text>.*?)\n *</div>", HTML.decode("utf-8"), re.DOTALL)
+            text = ''
+            if card_text:
+                text = card_text['text'].replace('<p>', ' ').replace('</p>', '').replace('\n\n', '\n')
             img_url = re.search(r"img.*?src=\"(?P<img_url>[^\"]*)\"", HTML.decode("utf-8"), re.DOTALL)['img_url']
             img_url = img_url.replace("large", "normal")
             # prices = re.search(r"href=\"/card/{}/{}/{}\".*?<a title=\"(Nonfoil: \$(?P<nonfoil>.*?))?(, Foil: \$(?P<foil>[^\"]*))?\" class=\"currency-usd\"[^<]*</a>".format(edition, collector_num, card_name), HTML2.decode("utf-8"), re.DOTALL)
@@ -323,7 +324,7 @@ def add_all_versions_of_card(card_name, is_dfc=False):
 
 def add_cards_by_name(name, get_all_versions_of_card=False):
     # find all cards that contain the partial name in the database and in the browser
-    name = name.replace(' ', '-').replace("'", "")
+    name = name.replace(' ', '-')
     is_db_changed = False
     webUrl = 'https://scryfall.com/search?q={}'.format(name)
     if get_all_versions_of_card:
@@ -341,10 +342,9 @@ def add_cards_by_name(name, get_all_versions_of_card=False):
             s = re.search(r"<a title=\".*?\".*?href=\"(?P<url>https://scryfall.com/card/(?P<edition>.*?)/(?P<collector_num>.*?)/(?P<card_name>.*?))\"/*?>en</a>",
                 HTML.decode("utf-8"), re.DOTALL)
             is_dfc = False
-            if re.search(r"<button.*?title=\"Turn Over Card\".*?</button>", HTML.decode("utf-8"), re.DOTALL):
+            if re.search(r"<button.*?class=\"button-n\" title=\"Transform Card\".*?</button>", HTML.decode("utf-8"), re.DOTALL):
                 is_dfc = True
             is_db_changed = add_card_from_details(s['url'], s['edition'], s['collector_num'], s['card_name'], is_dfc=is_dfc) or is_db_changed
-            # results = [(s['url'], s['edition'], s['collector_num'], s['card_name'])]
         else:
             for card_details in one_faced_cards:
                 url, edition, collector_num, card_name = card_details
@@ -352,7 +352,8 @@ def add_cards_by_name(name, get_all_versions_of_card=False):
             for card_details in double_faced_cards:
                 url, edition, collector_num, card_name = card_details
                 is_db_changed = add_card_from_details(url, edition, collector_num, card_name, is_dfc=True) or is_db_changed
-    except:
+    except Exception as e:
+        print(e)
         print('invalid card name')
     return is_db_changed
 
@@ -533,9 +534,13 @@ def deck_page(deck_name):
     for card in basic_lands:
         cards.append({'card': card, 'is_foil': False})
     deck_description = get_box_from_name(deck_name)[2]
+    columns = [[] for i in range(7)]
+    for card in cards:
+        columns[card['card'].mana_value].append(card)
     return render_template('deck.html', cards=cards, commanders=commanders, deck_name=deck_name,
                            deck_description=deck_description, basic_lands=all_basic_lands,
-                           snow_basic_lands=get_all_basic_lands(get_snow=True), basic_lands_count=basic_lands_count)
+                           snow_basic_lands=get_all_basic_lands(get_snow=True), basic_lands_count=basic_lands_count,
+                           columns=columns)
 
 
 @app.route('/search')
@@ -625,18 +630,20 @@ def get_card_from_collection(card_id):
                    card[11], card[12]).__dict__, **{'is_foil': card[13]}}
 
 
-@app.route('/get_box_for_card/<color_id>/<is_foil>/<nonfoil_price>/<foil_price>')
-def get_box_for_card(color_id, is_foil, nonfoil_price, foil_price):
+@app.route('/get_box_for_card/<card_type>/<color_id>/<is_foil>/<nonfoil_price>/<foil_price>')
+def get_box_for_card(card_type, color_id, is_foil, nonfoil_price, foil_price):
     box_name = ''
     if len(color_id) == 1:  # if color_id is a single color(W,U,B...) or colorless(C)
         box_name += color_id
     else:  # if card is a multicolored
         box_name += 'M'
-    price = foil_price if is_foil == '1' else nonfoil_price
+    price = foil_price if is_foil == 'true' else nonfoil_price
     if price == '-1':
         return 'false'  # if price is -1, it means that card has no price
     if float(price) >= 2:
         box_name = '2$+'
+    elif card_type.find('Land') != -1:
+        box_name = 'Lands'
     elif 0.5 <= float(price) <= 2 and color_id != 'C' and color_id[0] != 'M':
         box_name += ' 0.5$-2$'
     elif 0 <= float(price) <= 0.5 and color_id != 'C' and color_id[0] != 'M':

@@ -19,6 +19,7 @@
         }
 
         $(document).ready(function() {
+
             $(".add-basic-lands-button").click(function() {
                 $('#basic_lands_form').toggle("slow");
             });
@@ -92,7 +93,7 @@
         <input type="text" name="name" placeholder="search in collection">
         <input type="submit" value="Search">
     </form>
-    <div class="in-page-box-name">{{ deck_name }}</div>
+    <div class="in-page-box-name">{{ deck_name }} - {{ (cards+commanders)|length }} cards</div>
     <div class="in-page-box-description">{{ deck_description }}</div>
     <div class="commanders-in-deck-view">
         {% for card in commanders %}
@@ -130,19 +131,17 @@
         </div>
     </div>
     <div style="clear: both;">
-        {% for mana_val in range(0, 7) %}
+        {% for column in columns %}
             <div class="mana-val-column-in-deck">
-                {% for card in cards %}
-                    {% if card['card'].mana_value == mana_val %}
-                        <div class="in-deck-card-image" is_hovered="false">
-                            <a href="/card/{{ card['card'].collector_num }}/{{ card['card'].edition }}"><img title="{{ card['card'].name }}" src="{{ card['card'].img_url }}" width="200"></a>
-                                {% if card['is_foil'] and card['card'].foil_price != -1 %}
-                                    <p class="deck-view-card-price">✶{{ card['card'].foil_price }}$</p>
-                                {% elif card['card'].nonfoil_price != -1 %}
-                                    <p class="deck-view-card-price">{{ card['card'].nonfoil_price }}$</p>
-                                {% endif %}
-                        </div>
-                    {% endif %}
+                {% for card in column %}
+                    <div class="in-deck-card-image" is_hovered="false">
+                        <a href="/card/{{ card['card'].collector_num }}/{{ card['card'].edition }}"><img title="{{ card['card'].name }}" src="{{ card['card'].img_url }}" width="200" style="border-radius: 9px;"></a>
+                            {% if card['is_foil'] and card['card'].foil_price != -1 %}
+                                <p class="deck-view-card-price">✶{{ card['card'].foil_price }}$</p>
+                            {% elif card['card'].nonfoil_price != -1 %}
+                                <p class="deck-view-card-price">{{ card['card'].nonfoil_price }}$</p>
+                            {% endif %}
+                    </div>
                 {% endfor %}
             </div>
         {% endfor %}
