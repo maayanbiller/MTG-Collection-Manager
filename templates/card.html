@@ -153,7 +153,7 @@
             <input id="deck_name_input" type="text" placeholder="deck name" list="decks">
             <datalist id="decks">
                 {% for deck in decks %}
-                    <option value="{{ deck }}">
+                    <option value="{{ deck['name'] }}">
                 {% endfor %}
             </datalist>
 

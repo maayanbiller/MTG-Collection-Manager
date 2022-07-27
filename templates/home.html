@@ -30,6 +30,16 @@
                 });
             }
         }
+
+        $(document).ready(function() {
+            $('.deck-in-boxes-view').mouseover(function() {
+                $(this)[0].style['background-image'] = $(this)[0].style['background-image'].replaceAll('rgba(255, 255, 255, 0.4)', 'rgba(255, 255, 255, 0.6)');
+            });
+            $('.deck-in-boxes-view').mouseout(function() {
+                $(this)[0].style['background-image'] = $(this)[0].style['background-image'].replaceAll('rgba(255, 255, 255, 0.6)', 'rgba(255, 255, 255, 0.4)');
+            });
+
+        });
     </script>
 </head>
 <body>
@@ -43,19 +53,19 @@
         <input type="submit" value="Search">
     </form>
     <div>
-    {% for deck_name in decks %}
-        <a href="/deck/{{ deck_name }}">
-            <div class="deck-in-boxes-view">
-                {{ deck_name }}
+    {% for deck in decks %}
+        <a href="/deck/{{ deck['name'] }}">
+            <div class="deck-in-boxes-view" style="background-image: linear-gradient(rgba(255,255,255,0.4), rgba(255,255,255,0.4)), url({{ deck['background'] }});">
+                {{ deck['name'] }}
             </div>
         </a>
     {% endfor %}
     </div>
     <div style="clear: both;">
-    {% for box_name in non_deck_boxes %}
-        <a href="/box/{{ box_name }}">
-            <div class="box-in-boxes-view {{ box_name[0] }}-box">
-                {{ box_name }}
+    {% for box in non_deck_boxes %}
+        <a href="/box/{{ box['name'] }}">
+            <div class="box-in-boxes-view {{ box['name'][0] }}-box">
+                {{ box['name'] }}
             </div>
         </a>
     </div>

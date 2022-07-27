@@ -93,7 +93,7 @@
                 <select id="box_to_move_to{{card['ID']}}" placeholder="box name">
                     <option id="default_box_option{{card['ID']}}" value="{}">Default Box</option>
                     {% for deck in decks %}
-                        <option value="{{ deck }}">{{ deck }}</option>
+                        <option value="{{ deck['name'] }}">{{ deck['name'] }}</option>
                     {% endfor %}
                 </select>
 <!--                <input id="box_to_move_to{{card['ID']}}" type="text" placeholder="box name" list="boxes">-->

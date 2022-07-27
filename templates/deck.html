@@ -19,6 +19,32 @@
         }
 
         $(document).ready(function() {
+            $('.set-deck-bg-to-commander-img-btn').click(function() {
+                $('.set-deck-bg-to-commander-img-form').toggle("slow");
+            });
+            $('.set-deck-bg-to-commander-img-cancel-btn').click(function() {
+                $('.set-deck-bg-to-commander-img-form').toggle("slow");
+            });
+
+
+            {% if commanders|length > 0 %}
+                $('.set-deck-bg-to-commander-img-accept-btn').click(function() {
+                        $.ajax({
+                            url: '/set_box_background/{{ deck_name }}',
+                            data: {
+                                'background': '{{ commanders[0]['card'].img_url.replace("normal", "art_crop") }}'
+                            },
+                            type: 'GET',
+                            success: function(succeed) {
+                                if (succeed == 'success') {
+                                    $('.set-deck-bg-to-commander-img-succeed').text('Background set to commander image');
+                                } else {
+                                    $('.set-deck-bg-to-commander-img-succeed').text('Error setting background');
+                                }
+                            }
+                        });
+                });
+            {% endif %}
 
             $(".add-basic-lands-button").click(function() {
                 $('#basic_lands_form').toggle("slow");
@@ -108,6 +134,12 @@
             </div>
         {% endfor %}
     </div>
+    <button class="set-deck-bg-to-commander-img-btn">set commander image as background</button>
+    <div class="set-deck-bg-to-commander-img-form">
+        <button class="set-deck-bg-to-commander-img-accept-btn">accept</button>
+        <button class="set-deck-bg-to-commander-img-cancel-btn">cancel</button>
+    </div>
+    <div class="set-deck-bg-to-commander-img-succeed"></div>
     <button type="button" class="add-basic-lands-button">Add basic lands +</button>
     <div class="add-basic-lands-form" id="basic_lands_form">
         {% for basic_land in basic_lands %}
@@ -131,9 +163,10 @@
         </div>
     </div>
     <div style="clear: both;">
-        {% for column in columns %}
+        {% for idx in range(columns|length) %}
             <div class="mana-val-column-in-deck">
-                {% for card in column %}
+                <div class="deck-view-column-title">{{ column_titles[idx] }}</div>
+                {% for card in columns[idx] %}
                     <div class="in-deck-card-image" is_hovered="false">
                         <a href="/card/{{ card['card'].collector_num }}/{{ card['card'].edition }}"><img title="{{ card['card'].name }}" src="{{ card['card'].img_url }}" width="200" style="border-radius: 9px;"></a>
                             {% if card['is_foil'] and card['card'].foil_price != -1 %}

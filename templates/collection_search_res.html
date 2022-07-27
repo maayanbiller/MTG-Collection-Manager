@@ -6,6 +6,11 @@
     <title>Search</title>
     <script >
         $(document).ready(function() {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            $("#search_input").val(urlParams.get('name'));
+
+
             if ('{{ updated }}' === 'false') {
                 $.ajax({
                     beforeSend: function() {
@@ -29,7 +34,7 @@
         <button type="Home">Home</button>
     </a>
     <form action="/search/in_collection" method="get">
-        <input type="text" name="name" placeholder="search in collection">
+        <input id="search_input" type="text" name="name" placeholder="search in collection">
         <input type="submit" value="Search">
     </form>
     <div id="loadingDiv" class="search_loading_div"></div>

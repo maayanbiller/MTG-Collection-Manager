@@ -37,6 +37,7 @@
     margin-left: 65px;
 }
 .add-basic-lands-button {
+    clear: both;
     font: bold 20px/30px Helvetica, Sans-Serif;
     font-size: 25px;
     border: 1px solid #334400;
@@ -421,8 +422,7 @@
     padding: 50px;
     margin: 10px;
     float: left;
-    //background-image: linear-gradient(rgba(255,255,255,0.3), rgba(255,255,255,0.3)), url("https://c1.scryfall.com/file/scryfall-cards/normal/front/9/2/92ea1575-eb64-43b5-b604-c6e23054f228.jpg?1571197150");;
-    background-size: contain;
+    background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
 }
@@ -542,6 +542,46 @@
     font-size: 20px;
     display: none;
 }
-.add-box-name-input{}
-.add-box-type-input{}
-.add-box-description-input{}
+
+.set-deck-bg-to-commander-img-btn {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 20px;
+    border: 1px solid #334400;
+    border-radius: 5px;
+    background-color: #fff;
+    padding: 20px;
+    margin: 20px;
+    float: left;
+    cursor: pointer;
+}
+.set-deck-bg-to-commander-img-btn:hover {
+    background-color: #ddd;
+}
+.set-deck-bg-to-commander-img-succeed {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 20px;
+    color: #000;
+    float: left;
+    margin: 20px;
+}
+.set-deck-bg-to-commander-img-form {
+    float: left;
+    margin: 0px 20px 20px 20px;
+    clear: both;
+    display: none;
+}
+.set-deck-bg-to-commander-img-accept-btn {
+    margin: 3px;
+}
+.set-deck-bg-to-commander-img-cancel-btn {
+    margin: 3px;
+}
+.deck-view-column-title {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 30px;
+    color: #000;
+    background-color: #fff;
+    margin: 20px 10px 20px 90px;
+    float: top;
+}
+

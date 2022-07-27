@@ -12,7 +12,7 @@
         <input type="text" name="name" placeholder="search in collection">
         <input type="submit" value="Search">
     </form>
-    <div class="in-page-box-name">{{ box_name }}</div>
+    <div class="in-page-box-name">{{ box_name }} - {{ cards|length }} cards</div>
     <div class="in-page-box-description">{{ box_description }}</div>
     {% for card in cards %}
         <div class="in_search_card_img">

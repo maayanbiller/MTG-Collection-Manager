@@ -199,7 +199,7 @@ def get_mana_val_and_cost_from_mana_cost_html(mana_cost_html):
         for i, m in enumerate(mana_cost_list):
             if m.isdecimal():
                 mana_value += int(m)
-            else:
+            elif m != 'X':
                 mana_value += 1
             mana_cost += f'{m}' if i == 0 else f' {m}'
     return mana_value, mana_cost
@@ -209,7 +209,7 @@ def add_card_from_details(url, edition, collector_num, card_name, is_editions_ch
     card = get_card_in_db_by_primary_key(f'F{collector_num}', edition)
     if card:
         print(card.name, edition)
-        print('{} already in database'.format(card_name))
+        print('{} already in database'.format(card.name))
         return False  # card isn't added to database
     try:
         HTML = urllib.request.urlopen(url).read()
@@ -324,7 +324,8 @@ def add_all_versions_of_card(card_name, is_dfc=False):
 
 def add_cards_by_name(name, get_all_versions_of_card=False):
     # find all cards that contain the partial name in the database and in the browser
-    name = name.replace(' ', '-')
+    # name = name.replace(' ', '-')
+    name = convert_name_to_url_name(name)
     is_db_changed = False
     webUrl = 'https://scryfall.com/search?q={}'.format(name)
     if get_all_versions_of_card:
@@ -342,16 +343,17 @@ def add_cards_by_name(name, get_all_versions_of_card=False):
             s = re.search(r"<a title=\".*?\".*?href=\"(?P<url>https://scryfall.com/card/(?P<edition>.*?)/(?P<collector_num>.*?)/(?P<card_name>.*?))\"/*?>en</a>",
                 HTML.decode("utf-8"), re.DOTALL)
             is_dfc = False
-            if re.search(r"<button.*?class=\"button-n\" title=\"Transform Card\".*?</button>", HTML.decode("utf-8"), re.DOTALL):
+            if re.search(r"<button.*?class=\"button-n\" title=\"Transform Card\".*?</button>", HTML.decode("utf-8"), re.DOTALL)\
+                    or re.search(r"<button.*?class=\"button-n\" title=\"Turn Over Card\".*?</button>", HTML.decode("utf-8"), re.DOTALL):
                 is_dfc = True
             is_db_changed = add_card_from_details(s['url'], s['edition'], s['collector_num'], s['card_name'], is_dfc=is_dfc) or is_db_changed
         else:
             for card_details in one_faced_cards:
                 url, edition, collector_num, card_name = card_details
-                is_db_changed = add_card_from_details(url, edition, collector_num, card_name) or is_db_changed
+                is_db_changed = add_card_from_details(url, edition, collector_num, card_name, is_editions_check=get_all_versions_of_card) or is_db_changed
             for card_details in double_faced_cards:
                 url, edition, collector_num, card_name = card_details
-                is_db_changed = add_card_from_details(url, edition, collector_num, card_name, is_dfc=True) or is_db_changed
+                is_db_changed = add_card_from_details(url, edition, collector_num, card_name, is_dfc=True, is_editions_check=get_all_versions_of_card) or is_db_changed
     except Exception as e:
         print(e)
         print('invalid card name')
@@ -449,14 +451,14 @@ def get_all_cards_in_box(box_name, get_commanders=False):
 def get_all_boxes(get_all=False):
     with sqlite3.connect('cards database.db') as conn:
         c = conn.cursor()
-        c.execute("SELECT box_name, type FROM boxes")
+        c.execute("SELECT box_name, type, background FROM boxes")
         non_deck_boxes = []
         decks = []
         for box in c.fetchall():
             if box[1] == 'deck':
-                decks.append(box[0])
+                decks.append({'name': box[0], 'background': box[2]})
             else:
-                non_deck_boxes.append(box[0])
+                non_deck_boxes.append({'name': box[0], 'background': box[2]})
         if get_all:
             return non_deck_boxes + decks
         return non_deck_boxes, decks
@@ -534,13 +536,15 @@ def deck_page(deck_name):
     for card in basic_lands:
         cards.append({'card': card, 'is_foil': False})
     deck_description = get_box_from_name(deck_name)[2]
-    columns = [[] for i in range(7)]
+    max_mv_col = 7
+    column_titles = [str(i) if i < max_mv_col else str(i)+'+' for i in range(max_mv_col+1)]
+    columns = [[] for i in range(max_mv_col+1)]
     for card in cards:
-        columns[card['card'].mana_value].append(card)
+        mana_val = card['card'].mana_value
+        columns[max_mv_col if mana_val >= max_mv_col else mana_val].append(card)
     return render_template('deck.html', cards=cards, commanders=commanders, deck_name=deck_name,
                            deck_description=deck_description, basic_lands=all_basic_lands,
-                           snow_basic_lands=get_all_basic_lands(get_snow=True), basic_lands_count=basic_lands_count,
-                           columns=columns)
+                           basic_lands_count=basic_lands_count, columns=columns, column_titles=column_titles)
 
 
 @app.route('/search')
@@ -680,6 +684,16 @@ def add_box(box_name, box_type):
     description = request.args.get('description', default='')
     add_box_to_boxes(box_name, box_type, description)
     return 'added'
+
+
+@app.route('/set_box_background/<box_name>')
+def set_box_background(box_name):
+    background = request.args.get('background', default='')
+    box_name = decode_card_name(box_name)
+    with sqlite3.connect('cards database.db') as conn:
+        c = conn.cursor()
+        c.execute("UPDATE boxes SET background=:background WHERE box_name=:box_name", {'box_name': box_name, 'background': background})
+    return 'success'
 
 
 app.run(debug=True)
