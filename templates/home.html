@@ -63,7 +63,7 @@
     </div>
     <div style="clear: both;">
     {% for box in non_deck_boxes %}
-        <a href="/box/{{ box['name'] }}">
+        <a href="/box/{{ box['name'].replace('#', '%23') }}">
             <div class="box-in-boxes-view {{ box['name'][0] }}-box">
                 {{ box['name'] }}
             </div>
@@ -74,7 +74,7 @@
         Add +
     </div>
 
-    <div id="add_box_form" class="add_box_form">
+    <div id="add_box_form" class="add-box-form">
         <label class="add-box-name-input">
             <input id="box_name_input" type="text" placeholder="box name">
         </label>

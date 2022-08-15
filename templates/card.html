@@ -30,7 +30,7 @@
             var box = $("#card_default_box").val();
             $.ajax({
                 type: "GET",
-                url: `/add_to_cards_collection/${edition}/${collector_num}/${box}/${is_foil}`,
+                url: `/add_to_cards_collection/${edition}/${collector_num}/${box.replace('#','%23')}/${is_foil}`,
                 success: function (resp) {
                     $("#card_box_name").text(`Card added to box - ${resp}`);
                 }
@@ -59,10 +59,20 @@
                 type: "GET",
                 url: `/get_box_for_card/${card_type}/${color_id}/${is_foil}/${nonfoil_price}/${foil_price}`,
                 success: function (resp) {
-                    if (resp != 'flase') {
+                    if (resp != 'false') {
                         $("#card_default_box").text(`Default box - ${resp}`);
                         $("#card_default_box").val(resp);
                     }
+                }
+            });
+        }
+
+        function update_card () {
+            $.ajax({
+                type: "GET",
+                url: "/update_card/{{ front_card.edition }}/{{ front_card.collector_num[1:] }}",
+                success: function (resp) {
+                    location.reload();
                 }
             });
         }
@@ -89,7 +99,7 @@
         <input type="submit" value="Search">
     </form>
 
-    <div class="in_page_card_img">
+    <div class="in-page-card-img">
         <img id="card_img" title="{{ front_card.name }}" src="{{ front_card.img_url }}" width="400">
     </div>
 
@@ -100,9 +110,9 @@
                     <div class="mana-cost-symbol symbol-{{ mana.replace('/', 'or') }}" title="one {{ mana }} mana">{{ mana }}</div>
                 {% endif %}
             {% endfor %}
-            <p class="in_page_card_name">{{ card.name }}</p>
-            <p class="in_page_card_type">{{ card.type }}</p>
-            <p class="in_page_card_text">
+            <p class="in-page-card-name">{{ card.name }}</p>
+            <p class="in-page-card-type">{{ card.type }}</p>
+            <p class="in-page-card-text">
                 {% for pile in card.text_list %}
                     {% if pile[0] == '/' and pile[-1] == '/' %}
                         <svg class="text-symbol symbol-{{ pile[1:-1] }}" title="one {{ mana }} mana">{{ mana }}</svg>
@@ -124,11 +134,14 @@
         <button class="flip-image-button" onclick="flip_card_img()">Flip</button>
     {% endif %}
     {% if front_card.nonfoil_price != -1 %}
-        <p class="in_page_card_price">price : {{ front_card.nonfoil_price }}$</p>
+        <p class="in-page-card-price">price : {{ front_card.nonfoil_price }}$</p>
     {% endif %}
     {% if front_card.foil_price != -1 %}
-        <p class="in_page_card_price">foil price : {{ front_card.foil_price }}$</p>
+        <p class="in-page-card-price">foil price : {{ front_card.foil_price }}$</p>
     {% endif %}
+
+    <button class="update-card-button" onclick="update_card()">Update card</button>
+
     <a href="/card/all-versions/{{ front_card.url_name }}">
         <button type="button">Show all versions</button>
     </a>

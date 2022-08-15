@@ -24,7 +24,7 @@
         function move_box(card_id, box_name) {
             $.ajax({
                 type: "GET",
-                url: `/move_card_to_box/${card_id}/${box_name}`,
+                url: `/move_card_to_box/${card_id}/${box_name.replace('#','%23')}`,
                 success: function () {
                     location = location;
                 }
@@ -72,12 +72,12 @@
     </form>
 
     {% for card in decks_copies + other_copies %}
-        <div class="in_search_card_img">
-            <a href="/card/{{ card['card'].collector_num }}/{{ card['card'].edition }}?copy_id={{card['ID']}}"><img title="{{ card['card'].name }}" src="{{ card['card'].img_url }}" width="200"></a>
+        <div class="in-search-card-img">
+            <a href="/card/{{ card['card'].collector_num[1:] }}/{{ card['card'].edition }}?copy_id={{card['ID']}}"><img title="{{ card['card'].name }}" src="{{ card['card'].img_url }}" width="200"></a>
             {% if (card['is_foil'] and card['card'].foil_price != -1) or card['card'].nonfoil_price == -1 %}
-                <p class="card_price_search">foil : {{ card['card'].foil_price }}$</p>
+                <p class="card-price-search">foil : {{ card['card'].foil_price }}$</p>
             {% else %}
-                <p class="card_price_search">{{ card['card'].nonfoil_price }}$</p>
+                <p class="card-price-search">{{ card['card'].nonfoil_price }}$</p>
             {% endif %}
             <p class="card-box-in-copies-view">{{ card['box'] }}</p>
             <div class="change-copy-status-form">

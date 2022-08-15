@@ -120,16 +120,21 @@
         <input type="submit" value="Search">
     </form>
     <div class="in-page-box-name">{{ deck_name }} - {{ (cards+commanders)|length }} cards</div>
+    <div class="box-total-price">Total price: {{ total_price }}$</div>
     <div class="in-page-box-description">{{ deck_description }}</div>
     <div class="commanders-in-deck-view">
         {% for card in commanders %}
             <div class="deck-view-commander-img">
-                <a href="/card/{{ card['card'].collector_num }}/{{ card['card'].edition }}"><img title="{{ card['card'].name }}" src="{{ card['card'].img_url }}" width="400"></a>
-                <p class="card_name_search">{{ card['card'].name }}</p>
-                {% if card['card'].nonfoil_price != -1 %}
-                    <p class="card_price_search">{{ card['card'].nonfoil_price }}$</p>
-                {% elif card['card'].foil_price != -1 %}
-                    <p class="card_price_search">foil : {{ card['card'].foil_price }}$</p>
+                <a href="/card/{{ card['card'].collector_num[1:] }}/{{ card['card'].edition }}"><img title="{{ card['card'].name }}" src="{{ card['card'].img_url }}" width="400"></a>
+                <p class="card-name-search">{{ card['card'].name }}</p>
+                {% if card['is_foil'] %}
+                    {% if card['card'].foil_price != -1 %}
+                        <p class="card-price-search">foil : {{ card['card'].foil_price }}$</p>
+                    {% endif %}
+                {% else %}
+                    {% if card['card'].nonfoil_price != -1 %}
+                       <p class="card-price-search">{{ card['card'].nonfoil_price }}$</p>
+                    {% endif %}
                 {% endif %}
             </div>
         {% endfor %}
@@ -168,7 +173,7 @@
                 <div class="deck-view-column-title">{{ column_titles[idx] }}</div>
                 {% for card in columns[idx] %}
                     <div class="in-deck-card-image" is_hovered="false">
-                        <a href="/card/{{ card['card'].collector_num }}/{{ card['card'].edition }}"><img title="{{ card['card'].name }}" src="{{ card['card'].img_url }}" width="200" style="border-radius: 9px;"></a>
+                        <a href="/card/{{ card['card'].collector_num[1:] }}/{{ card['card'].edition }}"><img title="{{ card['card'].name }}" src="{{ card['card'].img_url }}" width="200" style="border-radius: 9px;"></a>
                             {% if card['is_foil'] and card['card'].foil_price != -1 %}
                                 <p class="deck-view-card-price">✶{{ card['card'].foil_price }}$</p>
                             {% elif card['card'].nonfoil_price != -1 %}

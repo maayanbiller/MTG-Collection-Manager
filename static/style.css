@@ -116,7 +116,7 @@
     background-position: center;
 }
 
-.in_search_card_img {
+.in-search-card-img {
     border: 1px solid #334400;
     border-radius: 5px;
     background-color: #fff;
@@ -124,20 +124,20 @@
     margin: 20px 0;
     float: left;
 }
-.card_name_search {
+.card-name-search {
     font: bold 20px/30px Helvetica, Sans-Serif;
     font-size: 20px;
     font-weight: bold;
     color: #334400;
 }
-.card_price_search {
+.card-price-search {
     font: bold 20px/30px Helvetica, Sans-Serif;
     font-size: 20px;
     font-weight: bold;
     color: #334400;
 }
 
-.in_page_card_img {
+.in-page-card-img {
     border: 1px solid #334400;
     border-radius: 5px;
     background-color: #fff;
@@ -145,28 +145,28 @@
     margin: 10px 20px 0px 10px;
     float: left;
 }
-.in_page_card_name {
+.in-page-card-name {
     font: bold 20px/30px Helvetica, Sans-Serif;
     font-size: 40px;
     font-weight: bold;
     color: #334400;
     padding-left: 470px;
 }
-.in_page_card_type {
+.in-page-card-type {
     font: bold 20px/30px Helvetica, Sans-Serif;
     font-size: 30px;
     font-weight: bold;
     color: #334400;
     padding-left: 490px;
 }
-.in_page_card_text {
+.in-page-card-text {
     font: bold 20px/30px Helvetica, Sans-Serif;
     font-size: 20px;
     font-weight: bold;
     color: #334400;
     padding-left: 510px;
 }
-.in_page_card_price {
+.in-page-card-price {
     font: bold 20px/30px Helvetica, Sans-Serif;
     font-size: 30px;
     font-weight: bold;
@@ -195,7 +195,7 @@
 }
 
 
-.search_loading_div {
+.search-loading-div {
     font: bold 20px/30px Helvetica, Sans-Serif;
     font-size: 30px;
     font-weight: bold;
@@ -230,8 +230,8 @@
     border-radius: 500px;
     box-shadow: -1px 1px 0 rgb(0 0 0 / 85%);
     text-indent: -999em;
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
 }
 .symbol-W {
     background-image: url(/static/symbols/W.svg);
@@ -383,6 +383,9 @@
 .symbol-T {
     background-image: url(/static/symbols/T.svg)
 }
+.symbol-Q {
+    background-image: url(/static/symbols/Q.svg)
+}
 
 .add-to-collection-box-name{
     font: bold 20px/30px Helvetica, Sans-Serif;
@@ -407,6 +410,14 @@
     color: #000;
     background-color: #fff;
     margin: 50px 50px 30px 50px;
+    float: top;
+}
+.box-total-price{
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 30px;
+    color: #000;
+    background-color: #fff;
+    margin-left: 80px;
     float: top;
 }
 
@@ -462,7 +473,7 @@
 .add-box-button-in-boxes-view:hover {
     background-color: rgb(157 255 178 / 55%);
 }
-.add_box_form{
+.add-box-form {
     display: none;
     padding: 100px
 }
@@ -495,6 +506,18 @@
 }
 .G-box:hover{
     background-color: #73ff73;
+}
+.M-box {
+    background-color: #ffc80090;
+}
+.M-box:hover{
+    background-color: #ffc800;
+}
+.C-box {
+    background-color: #bdbdbd90;
+}
+.C-box:hover{
+    background-color: #bdbdbd;
 }
 .edit-copies-button {
     font: bold 20px/30px Helvetica, Sans-Serif;
@@ -581,7 +604,8 @@
     font-size: 30px;
     color: #000;
     background-color: #fff;
-    margin: 20px 10px 20px 90px;
+    text-align: center;
+    margin: 20px;
     float: top;
 }
 
