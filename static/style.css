@@ -211,6 +211,7 @@
     padding: 10px;
     margin: 10px 0;
     float: left;
+    clear: both;
 }
 
 .mana-cost-symbol {
@@ -237,62 +238,62 @@
     background-image: url(/static/symbols/W.svg);
 }
 .symbol-U {
-    background-image: url(/static/symbols/U.svg)
+    background-image: url(/static/symbols/U.svg);
 }
 .symbol-B {
-    background-image: url(/static/symbols/B.svg)
+    background-image: url(/static/symbols/B.svg);
 }
 .symbol-R {
-    background-image: url(/static/symbols/R.svg)
+    background-image: url(/static/symbols/R.svg);
 }
 .symbol-G {
-    background-image: url(/static/symbols/G.svg)
+    background-image: url(/static/symbols/G.svg);
 }
 
 
 .symbol-WorU {
-    background-image: url(/static/symbols/WorU.svg)
+    background-image: url(/static/symbols/WorU.svg);
 }
 .symbol-WorB {
-    background-image: url(/static/symbols/WorB.svg)
+    background-image: url(/static/symbols/WorB.svg);
 }
 .symbol-RorW {
-    background-image: url(/static/symbols/RorW.svg)
+    background-image: url(/static/symbols/RorW.svg);
 }
 .symbol-GorW {
-    background-image: url(/static/symbols/GorW.svg)
+    background-image: url(/static/symbols/GorW.svg);
 }
 .symbol-UorR {
-    background-image: url(/static/symbols/UorR.svg)
+    background-image: url(/static/symbols/UorR.svg);
 }
 .symbol-GorU {
-    background-image: url(/static/symbols/GorU.svg)
+    background-image: url(/static/symbols/GorU.svg);
 }
 .symbol-BorR {
-    background-image: url(/static/symbols/BorR.svg)
+    background-image: url(/static/symbols/BorR.svg);
 }
 .symbol-BorG {
-    background-image: url(/static/symbols/BorG.svg)
+    background-image: url(/static/symbols/BorG.svg);
 }
 .symbol-RorG {
-    background-image: url(/static/symbols/RorG.svg)
+    background-image: url(/static/symbols/RorG.svg);
 }
 
 
 .symbol-2orW {
-    background-image: url(/static/symbols/2orW.svg)
+    background-image: url(/static/symbols/2orW.svg);
 }
 .symbol-2orU {
-    background-image: url(/static/symbols/2orU.svg)
+    background-image: url(/static/symbols/2orU.svg);
 }
 .symbol-2orB {
-    background-image: url(/static/symbols/2orB.svg)
+    background-image: url(/static/symbols/2orB.svg);
 }
 .symbol-2orR {
-    background-image: url(/static/symbols/2orR.svg)
+    background-image: url(/static/symbols/2orR.svg);
 }
 .symbol-2orG {
-    background-image: url(/static/symbols/2orG.svg)
+    background-image: url(/static/symbols/2orG.svg);
 }
 
 
@@ -300,92 +301,149 @@
     background-image: url(/static/symbols/WorP.svg);
 }
 .symbol-UorP {
-    background-image: url(/static/symbols/UorP.svg)
+    background-image: url(/static/symbols/UorP.svg);
 }
 .symbol-BorP {
-    background-image: url(/static/symbols/BorP.svg)
+    background-image: url(/static/symbols/BorP.svg);
 }
 .symbol-RorP {
-    background-image: url(/static/symbols/RorP.svg)
+    background-image: url(/static/symbols/RorP.svg);
 }
 .symbol-GorP {
-    background-image: url(/static/symbols/GorP.svg)
+    background-image: url(/static/symbols/GorP.svg);
 }
 .symbol-GorUorP {
-    background-image: url(/static/symbols/GorUorP.svg)
+    background-image: url(/static/symbols/GorUorP.svg);
+}
+.symbol-RorGorP {
+    background-image: url(/static/symbols/RorGorP.svg);
+}
+.symbol-BorGorP {
+    background-image: url(/static/symbols/BorGorP.svg);
+}
+.symbol-GorWorP {
+    background-image: url(/static/symbols/GorWorP.svg);
+}
+.symbol-UorRorP {
+    background-image: url(/static/symbols/UorRorP.svg);
+}
+.symbol-WorUorP {
+    background-image: url(/static/symbols/WorUorP.svg);
+}
+.symbol-BorRorP {
+    background-image: url(/static/symbols/BorRorP.svg);
+}
+.symbol-RorWorP {
+    background-image: url(/static/symbols/RorWorP.svg);
+}
+.symbol-WorBorP {
+    background-image: url(/static/symbols/WorBorP.svg);
+}
+.symbol-UorBorP {
+    background-image: url(/static/symbols/UorBorP.svg);
 }
 
 
 .symbol-0 {
-    background-image: url(/static/symbols/0.svg)
+    background-image: url(/static/symbols/0.svg);
 }
 .symbol-1 {
-    background-image: url(/static/symbols/1.svg)
+    background-image: url(/static/symbols/1.svg);
 }
 .symbol-2 {
-    background-image: url(/static/symbols/2.svg)
+    background-image: url(/static/symbols/2.svg);
 }
 .symbol-3 {
-    background-image: url(/static/symbols/3.svg)
+    background-image: url(/static/symbols/3.svg);
 }
 .symbol-4 {
-    background-image: url(/static/symbols/4.svg)
+    background-image: url(/static/symbols/4.svg);
 }
 .symbol-5 {
-    background-image: url(/static/symbols/5.svg)
+    background-image: url(/static/symbols/5.svg);
 }
 .symbol-6 {
-    background-image: url(/static/symbols/6.svg)
+    background-image: url(/static/symbols/6.svg);
 }
 .symbol-7 {
-    background-image: url(/static/symbols/7.svg)
+    background-image: url(/static/symbols/7.svg);
 }
 .symbol-8 {
-    background-image: url(/static/symbols/8.svg)
+    background-image: url(/static/symbols/8.svg);
 }
 .symbol-9 {
-    background-image: url(/static/symbols/9.svg)
+    background-image: url(/static/symbols/9.svg);
 }
 .symbol-10 {
-    background-image: url(/static/symbols/10.svg)
+    background-image: url(/static/symbols/10.svg);
 }
 .symbol-11 {
-    background-image: url(/static/symbols/11.svg)
+    background-image: url(/static/symbols/11.svg);
 }
 .symbol-12 {
-    background-image: url(/static/symbols/12.svg)
+    background-image: url(/static/symbols/12.svg);
 }
 .symbol-13 {
-    background-image: url(/static/symbols/13.svg)
+    background-image: url(/static/symbols/13.svg);
 }
 .symbol-14 {
-    background-image: url(/static/symbols/14.svg)
+    background-image: url(/static/symbols/14.svg);
 }
 .symbol-15 {
-    background-image: url(/static/symbols/15.svg)
+    background-image: url(/static/symbols/15.svg);
 }
 .symbol-16 {
-    background-image: url(/static/symbols/16.svg)
+    background-image: url(/static/symbols/16.svg);
 }
 .symbol-20 {
-    background-image: url(/static/symbols/20.svg)
+    background-image: url(/static/symbols/20.svg);
+}
+
+.symbol-100 {
+    background-image: url(/static/symbols/100.svg);
+}
+.symbol-1000000 {
+    background-image: url(/static/symbols/1000000.svg);
 }
 
 .symbol-X {
-    background-image: url(/static/symbols/X.svg)
+    background-image: url(/static/symbols/X.svg);
 }
 .symbol-C {
-    background-image: url(/static/symbols/C.svg)
+    background-image: url(/static/symbols/C.svg);
 }
 .symbol-S {
-    background-image: url(/static/symbols/S.svg)
+    background-image: url(/static/symbols/S.svg);
 }
 .symbol-T {
-    background-image: url(/static/symbols/T.svg)
+    background-image: url(/static/symbols/T.svg);
 }
 .symbol-Q {
-    background-image: url(/static/symbols/Q.svg)
+    background-image: url(/static/symbols/Q.svg);
 }
+
+.symbol-HW {
+    background-image: url(/static/symbols/HW.svg);
+    box-shadow: none;
+    border-radius: 0px;
+}
+.symbol-HR {
+    background-image: url(/static/symbols/HR.svg);
+    box-shadow: none;
+    border-radius: 0px;
+}
+
+.text-symbol.symbol-HR {
+    width: 9px;
+}
+.text-symbol.symbol-HW {
+    width: 9px;
+}
+
+.symbol-∞ {
+    background-image: url(/static/symbols/∞.svg);
+}
+
 
 .add-to-collection-box-name{
     font: bold 20px/30px Helvetica, Sans-Serif;

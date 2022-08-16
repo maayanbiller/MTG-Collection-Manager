@@ -105,7 +105,7 @@
 
     {% for card in [front_card, back_card] %}
         {% if card %}
-            {% for mana in card.mana_cost.split(' ') %}
+            {% for mana in card.mana_cost.replace('{','').replace('}','') %}
                 {% if mana != '' %}
                     <div class="mana-cost-symbol symbol-{{ mana.replace('/', 'or') }}" title="one {{ mana }} mana">{{ mana }}</div>
                 {% endif %}
@@ -114,8 +114,8 @@
             <p class="in-page-card-type">{{ card.type }}</p>
             <p class="in-page-card-text">
                 {% for pile in card.text_list %}
-                    {% if pile[0] == '/' and pile[-1] == '/' %}
-                        <svg class="text-symbol symbol-{{ pile[1:-1] }}" title="one {{ mana }} mana">{{ mana }}</svg>
+                    {% if pile[0] == '{' and pile[-1] == '}' %}
+                        <svg class="text-symbol symbol-{{ pile[1:-1] }}" title="{{ mana }} mana">{{ mana }}</svg>
                     {% else %}
                         {% for paragraph in pile.split('\n') %}
                             {{ paragraph }}
