@@ -72,8 +72,8 @@
     </form>
 
     {% for card in decks_copies + other_copies %}
-        <div class="in-search-card-img">
-            <a href="/card/{{ card['card'].collector_num[1:] }}/{{ card['card'].edition }}?copy_id={{card['ID']}}"><img title="{{ card['card'].name }}" src="{{ card['card'].img_url }}" width="200"></a>
+        <div class="card-img-in-copies-view">
+            <a href="/card/{{ card['card'].collector_num }}/{{ card['card'].edition }}?copy_id={{card['ID']}}"><img title="{{ card['card'].name }}" src="{{ card['card'].img_url }}" width="200"></a>
             {% if (card['is_foil'] and card['card'].foil_price != -1) or card['card'].nonfoil_price == -1 %}
                 <p class="card-price-search">foil : {{ card['card'].foil_price }}$</p>
             {% else %}

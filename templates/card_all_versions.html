@@ -14,12 +14,31 @@
                     type: "GET",
                     url: '/update_db_with_card_versions/{{ card_url_name }}',
                     success: function (resp) {
-                        if (resp == 'changed') {
-                            location = '/card/all-versions/{{ card_url_name }}?updated=true';
-                        }
+                        location = '/card/all-versions/{{ card_url_name }}?updated=true';
                         $("#loadingDiv").text(" ");
                     }
                 });
+            }
+
+            if ({{ page }} < {{ pages|length }}) {
+                $(".next-page-button").click( function () {
+                    location = "/search?name={{keyword}}&updated={{ updated }}&page={{page+1}}";
+                    });
+                $(".next-page-button").css("cursor", "pointer")
+                $(".next-page-button").css("color", "#000")
+                $(".next-page-button").hover( function () {
+                    $(this).style("background-color: #ddd;")
+                    });
+            }
+            if ({{ page }} > 1 ) {
+                $(".prev-page-button").click( function () {
+                    location = "/search?name={{keyword}}&updated={{ updated }}&page={{page-1}}";
+                    });
+                $(".prev-page-button").css("cursor", "pointer")
+                $(".prev-page-button").css("color", "#000")
+                $(".prev-page-button").hover( function () {
+                    $(this).style("background-color: #ddd;")
+                    });
             }
         });
     </script>
@@ -34,9 +53,15 @@
     </form>
     <div class="in-page-card-name">{{ card_name }} - All Versions</div>
     <div id="loadingDiv" class="search-loading-div"></div>
-    {% for card in cards %}
+    {% if pages[0]|length > 0 %}
+        <div class="search-cards-num">{{ cards_num }} cards found</div>
+        <div class="search-current-page">page {{ page }} of {{ pages|length }} pages</div>
+    {% else %}
+        <div class="search-cards-num">No cards found</div>
+    {% endif %}
+    {% for card in pages[page-1] %}
         <div class="in-search-card-img">
-            <a href="/card/{{ card.collector_num[1:] }}/{{ card.edition }}"><img title={{ card.name }} src={{ card.img_url }} width="200"></a>
+            <a href="/card/{{ card.collector_num }}/{{ card.edition }}"><img title={{ card.name }} src={{ card.img_url }} width="200"></a>
             <p class="card-name-search">{{ card.name }}</p>
             {% if card.nonfoil_price != -1 %}
                 <p class="card-price-search">{{ card.nonfoil_price }}$</p>
@@ -45,6 +70,7 @@
             {% endif %}
         </div>
     {% endfor %}
-    </a>
+    <div class="prev-page-button">< Previous Page</div>
+    <div class="next-page-button">Next Page ></div>
 </body>
 </html>

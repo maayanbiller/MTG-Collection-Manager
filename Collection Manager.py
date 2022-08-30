@@ -31,6 +31,8 @@ class Card:
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7ad953930b59971b4fded5852a023868'
 
+page_cards_limit = 48
+
 
 def decode_card_name(name):
     name = name.replace('&#39;', "'")
@@ -115,17 +117,19 @@ def get_card_in_db_by_primary_key(collector_num, edition):
         return Card(card[0], card[1], card[2], card[3], card[4], card[5], card[6], card[7], card[8], card[9], card[10], card[11], card[12], card[13], card[14])
 
 
-def get_cards_in_db_by_name(name, get_duplicates=False, is_exact_match=False, get_cards_back=False):
-    cards = []
+def get_cards_in_db_by_name(name, page_cards_limit, get_duplicates=False, is_exact_match=False, get_cards_back=False):
+    pages = [[]]
     for card in get_cards_details_in_db_by_name(name, is_exact_match=is_exact_match):
-        if not get_cards_back and card[4][0] == 'B':  # check if the card is the back of double faced card
+        if not get_cards_back and card[4][0] in ['B', 'S'] and card[13] in ['dfc', 'split']:  # check if the card is the back of double faced card or secondary part of a split card
             continue
         if not get_duplicates:
             # check if another card with the same name is already in the list
-            if any(c.name == card[0] for c in cards):
+            if any(any(c.name == card[0] for c in page) for page in pages):
                 continue
-        cards.append(Card(card[0], card[1], card[2], card[3], card[4], card[5], card[6], card[7], card[8], card[9], card[10], card[11], card[12], card[13], card[14]))
-    return cards
+        if len(pages[-1]) >= page_cards_limit:
+            pages.append([])
+        pages[-1].append(Card(card[0], card[1], card[2], card[3], card[4], card[5], card[6], card[7], card[8], card[9], card[10], card[11], card[12], card[13], card[14]))
+    return pages
 
 
 def get_card_in_db_by_url_name(url_name):
@@ -138,43 +142,55 @@ def get_card_in_db_by_url_name(url_name):
         return Card(card[0], card[1], card[2], card[3], card[4], card[5], card[6], card[7], card[8], card[9], card[10], card[11], card[12], card[13], card[14])
 
 
-def add_card_from_json(card_json, update_existing=False):
+def add_card_from_json(card_json, update_existing=False, is_versions_check=False):
     # check if card in database
     with sqlite3.connect('cards database.db') as conn:
         c = conn.cursor()
         c.execute(f"SELECT * FROM cards WHERE collector_num=:collector_num AND edition=:edition",
-                  {'collector_num': f"F{card_json['collector_number']}", 'edition': card_json['set']})
-        if c.fetchone() and not update_existing:
+                  {'collector_num': card_json['collector_number'], 'edition': card_json['set']})
+        if c.fetchone() is not None and not update_existing:
             print(f'{card_json["name"]} already in database')
             return False
 
     layout = card_json['layout']
     if layout in ['modal_dfc', 'transform']:
         layout = 'dfc'
-    elif layout not in ['split', 'flip', 'adventure']:
+    elif layout in ['split', 'flip', 'adventure']:
+        layout = 'split'
+    else:
         layout = 'normal'
-    if layout in ['split', 'flip', 'adventure']:
-        print('split or flip cards are not supported currently')
-        return False
     card_faces = [card_json]
-    if layout in ['dfc', 'split', 'flip']:
+    if layout in ['dfc', 'split']:
         card_faces = card_json['card_faces']
-    for card_face, face in zip(card_faces, ['F', 'B']):
+    for face_idx, card_face in enumerate(card_faces):
         card_name = card_face['name']
         card_type = card_face['type_line']
         oracle_text = card_face['oracle_text']
         edition = card_json['set']
-        collector_num = f"{face}{card_json['collector_number']}"  # (F/B)collector_number
+        collector_num = card_json['collector_number']
+        if face_idx != 0:  # if this is the first(or the only) face of the card
+            if layout == 'split':
+                collector_num = f"S{card_json['collector_number']}"  # S for split/secondary card
+            elif layout == 'dfc':
+                collector_num = f"B{card_json['collector_number']}"  # B for back card
         scryfall_url = card_json['scryfall_uri'].split('?')[0]  # remove '?utm_source=api'
-        json_url = card_json['uri']
-        img_url = card_face['image_uris']['normal']
+        json_url = f'https://api.scryfall.com/cards/{edition}/{collector_num}'
+        if layout == 'dfc':
+            img_url = card_face['image_uris']['normal']
+        else:
+            img_url = card_json['image_uris']['normal']
         nonfoil_price = card_json['prices']['usd']
         foil_price = card_json['prices']['usd_foil']
         nonfoil_price = nonfoil_price if nonfoil_price else -1
         foil_price = foil_price if foil_price else -1
         if nonfoil_price == -1 and foil_price == -1:
-            print(f'{card_name} {edition} {collector_num} has no price')
-            return False
+            foil_price = card_json['prices']['usd_etched']
+            if foil_price is None:
+                print(f'{card_name} {edition} {collector_num} has no price')
+                if is_versions_check:
+                    return False
+                add_cards_by_name(card_name, get_all_versions_of_card=True)
+                return False
         color_identity = ''.join(card_json['color_identity'])
         if color_identity == '':
             color_identity = 'C'
@@ -206,15 +222,15 @@ def add_card_from_json(card_json, update_existing=False):
     return True  # card added to database
 
 
-def add_cards_from_json(json_url):
+def add_cards_from_json(json_url, is_versions_check=False):
     is_db_changed = False
     with urllib.request.urlopen(json_url) as url:
         data = json.loads(url.read().decode())
         for card in data['data']:
-            if card['lang'] == 'en':
-                is_db_changed = add_card_from_json(card) or is_db_changed
+            if card['lang'] == 'en' and len(card['scryfall_uri'].split('/')) == 7:
+                is_db_changed = add_card_from_json(card, is_versions_check=is_versions_check) or is_db_changed
         if 'next_page' in data:
-            is_db_changed = add_cards_from_json(data['next_page']) or is_db_changed
+            is_db_changed = add_cards_from_json(data['next_page'], is_versions_check=is_versions_check) or is_db_changed
     return is_db_changed
 
 
@@ -226,7 +242,8 @@ def add_cards_by_name(keyword, get_all_versions_of_card=False):
     if get_all_versions_of_card:
         webUrl = f'https://api.scryfall.com/cards/search?order=name&q=!{keyword}&unique=prints'
     try:
-        is_db_changed = add_cards_from_json(webUrl) or is_db_changed
+        is_db_changed = add_cards_from_json(webUrl, is_versions_check=get_all_versions_of_card) or is_db_changed
+
 
     except Exception as e:
         print(e)
@@ -255,18 +272,20 @@ def add_card_to_collection(edition, collector_num, box, is_foil, is_commander=Fa
                   {'edition': edition, 'collector_num': collector_num, 'box': box, 'is_foil': is_foil, 'is_commander': is_commander})
 
 
-def get_cards_in_collection_by_name(name):
+def get_cards_in_collection_by_name(name, page_cards_limit):
     with sqlite3.connect('cards database.db') as conn:
         c = conn.cursor()
         # do not allow duplicate names while searching for cards in the collection
         c.execute("""SELECT c.* from cards_collection as cc JOIN cards as c on cc.edition=c.edition AND
                      cc.collector_num=c.collector_num WHERE c.name like :name""", {'name': f'%{name}%'})
-        cards = []
+        pages = [[]]
         for card in c.fetchall():
-            if not any(c2.name == card[0] for c2 in cards):
-                cards.append(Card(card[0], card[1], card[2], card[3], card[4], card[5], card[6], card[7], card[8], card[9],
-                                  card[10], card[11], card[12], card[13], card[14]))
-        return cards
+            if not any(any(c2.name == card[0] for c2 in page) for page in pages):
+                if len(pages[-1]) >= page_cards_limit:
+                    pages.append([])
+                pages[-1].append(Card(card[0], card[1], card[2], card[3], card[4], card[5], card[6], card[7], card[8],
+                                      card[9], card[10], card[11], card[12], card[13], card[14]))
+        return pages
 
 
 def get_all_copies_in_collection(card_name):
@@ -355,7 +374,7 @@ def get_basic_lands_in_deck(deck, get_all_basics=False, get_count=False):
         for basic_land in c.fetchall():
             counts[basic_land[0]] = basic_land[-1]
             card = Card(basic_land[0], basic_land[1], basic_land[2], basic_land[3], basic_land[4], basic_land[5],
-                        basic_land[6], -1, -1, basic_land[9], basic_land[10], basic_land[11],
+                        basic_land[6], '×25', -1, basic_land[9], basic_land[10], basic_land[11],
                         basic_land[12], basic_land[13], basic_land[14])  # -1 for prices
             if card.name[:5] != 'Snow-':
                 all_basic_lands.append(card)
@@ -447,15 +466,19 @@ def deck_page(deck_name):
 def search_results():
     keyword = request.args.get('name')
     updated = request.args.get('updated', default='false')
-    cards = get_cards_in_db_by_name(keyword)
-    return render_template('search_res.html', cards=cards, keyword=keyword, updated=updated)
+    page = request.args.get('page', default=1)
+    pages = get_cards_in_db_by_name(keyword, page_cards_limit)
+    return render_template('search_res.html', pages=pages, page=int(page), keyword=keyword, updated=updated,
+                           cards_num=sum([len(p) for p in pages]))
 
 
 @app.route('/search/in_collection')
 def search_in_collection():
     keyword = request.args.get('name')
-    cards = get_cards_in_collection_by_name(keyword)
-    return render_template('collection_search_res.html', cards=cards, keyword=keyword)
+    page = request.args.get('page', default=1)
+    pages = get_cards_in_collection_by_name(keyword, page_cards_limit)
+    return render_template('collection_search_res.html', pages=pages, page=int(page), keyword=keyword,
+                           cards_num=sum([len(p) for p in pages]))
 
 
 @app.route('/update_basic_land_count/<deck>/<name>/<count>')
@@ -476,15 +499,17 @@ def update_db_with_search_res(keyword):
 @app.route('/card/all-versions/<url_name>')
 def card_all_versions(url_name):
     updated = request.args.get('updated', default='false')
+    page = request.args.get('page', default=1)
     card_name = get_card_in_db_by_url_name(url_name).name
-    cards = get_cards_in_db_by_name(card_name, is_exact_match=True, get_duplicates=True)
-    return render_template('card_all_versions.html', cards=cards, card_name=card_name, card_url_name=url_name, updated=updated)
+    pages = get_cards_in_db_by_name(card_name, page_cards_limit, is_exact_match=True, get_duplicates=True)
+    return render_template('card_all_versions.html', pages=pages, page=int(page), card_name=card_name,
+                           card_url_name=url_name, updated=updated, cards_num=sum([len(p) for p in pages]))
 
 
 @app.route('/update_db_with_card_versions/<url_name>')
 def update_db_with_card_versions(url_name):
     card_name = get_card_in_db_by_url_name(url_name).name
-    front_card = get_cards_in_db_by_name(card_name, is_exact_match=True)[0]
+    front_card = get_cards_in_db_by_name(card_name, page_cards_limit, is_exact_match=True)[0][0]  # get the first card in the first page
     is_db_changed = add_cards_by_name(front_card.name, get_all_versions_of_card=True)
     return 'changed' if is_db_changed else 'not changed'
 
@@ -492,18 +517,20 @@ def update_db_with_card_versions(url_name):
 @app.route('/card/<collector_num>/<edition>')
 def card_page(collector_num, edition):
     copy_id = request.args.get('copy_id', default=None)
-    front_card = get_card_in_db_by_primary_key(f'F{collector_num}', edition)
-    back_card = get_card_in_db_by_primary_key(f'B{collector_num}', front_card.edition)
-    for card in [front_card, back_card]:
+    primary_card = get_card_in_db_by_primary_key(collector_num, edition)
+    back_card = get_card_in_db_by_primary_key(f'B{collector_num}', edition)
+    split_sec_card = get_card_in_db_by_primary_key(f'S{collector_num}', edition)
+    for card in [primary_card, back_card, split_sec_card]:
         if card is not None:
-            card.text_list[0] = card.text_list[0].replace('<i>', '').replace('</i>', '')
+            card.text_list[0] = card.text_list[0]
             for t in re.findall("{(?P<symbol>.*?)}", card.oracle_text):
                 idx = card.text_list[-1].find('{'+t+'}')
                 last_text_pile = card.text_list[-1]
                 card.text_list[-1] = last_text_pile[:idx]
                 card.text_list.append('{'+t.replace('/', 'or')+'}')
-                card.text_list.append(last_text_pile[idx+len('{'+t+'}'):].replace('<i>', '').replace('</i>', ''))
-    return render_template('card.html', front_card=front_card, back_card=back_card, decks=get_all_boxes()[1], copy_id=copy_id)
+                card.text_list.append(last_text_pile[idx+len('{'+t+'}'):])
+    return render_template('card.html', primary_card=primary_card, back_card=back_card, split_sec_card=split_sec_card,
+                           decks=get_all_boxes()[1], copy_id=copy_id)
 
 
 @app.route('/card-copies/<name>')
@@ -620,7 +647,7 @@ def update_card_in_db(edition, collector_num):
     with sqlite3.connect('cards database.db') as conn:
         c = conn.cursor()
         c.execute(f"SELECT * FROM cards WHERE collector_num=:collector_num AND edition=:edition",
-                  {'collector_num': f'F{collector_num}', 'edition': edition})
+                  {'collector_num': collector_num, 'edition': edition})
         card = c.fetchone()
         if not card:
             return 'error'  # card is not in database

@@ -116,6 +116,16 @@
     background-position: center;
 }
 
+.card-img-in-copies-view {
+    border: 1px solid #334400;
+    border-radius: 5px;
+    background-color: #fff;
+    padding: 20px;
+    margin: 20px 0;
+    float: left;
+    width: 250px;
+    text-align: center;
+}
 .in-search-card-img {
     border: 1px solid #334400;
     border-radius: 5px;
@@ -123,6 +133,9 @@
     padding: 20px;
     margin: 20px 0;
     float: left;
+    width: 250px;
+    height: 400px;
+    text-align: center;
 }
 .card-name-search {
     font: bold 20px/30px Helvetica, Sans-Serif;
@@ -665,5 +678,46 @@
     text-align: center;
     margin: 20px;
     float: top;
+}
+
+.next-page-button {
+    border: 1px solid #334400;
+    border-radius: 5px;
+    float: left;
+    padding: 10px;
+    margin-top: 20px;
+    margin-left: 10px;
+    margin-bottom: 50px;
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 15px;
+    user-select: none;
+    background-color: #eee;
+    color: #888;
+}
+.prev-page-button {
+    border: 1px solid #334400;
+    border-radius: 5px;
+    clear: both;
+    float: left;
+    padding: 10px;
+    margin-top: 20px;
+    margin-left: 20px;
+    margin-bottom: 50px;
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 15px;
+    user-select: none;
+    background-color: #eee;
+    color: #888;
+}
+
+.search-cards-num {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 30px;
+    margin: 20px 10px 0px 20px
+}
+.search-current-page {
+    font: bold 20px/30px Helvetica, Sans-Serif;
+    font-size: 20px;
+    margin: 5px 10px 0px 20px
 }
 

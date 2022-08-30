@@ -9,6 +9,27 @@
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
             $("#search_input").val(urlParams.get('name'));
+
+            if ({{ page }} < {{ pages|length }}) {
+                $(".next-page-button").click( function () {
+                    location = "/search?name={{keyword}}&updated={{ updated }}&page={{page+1}}";
+                    });
+                $(".next-page-button").css("cursor", "pointer")
+                $(".next-page-button").css("color", "#000")
+                $(".next-page-button").hover( function () {
+                    $(this).style("background-color: #ddd;")
+                    });
+            }
+            if ({{ page }} > 1 ) {
+                $(".prev-page-button").click( function () {
+                    location = "/search?name={{keyword}}&updated={{ updated }}&page={{page-1}}";
+                    });
+                $(".prev-page-button").css("cursor", "pointer")
+                $(".prev-page-button").css("color", "#000")
+                $(".prev-page-button").hover( function () {
+                    $(this).style("background-color: #ddd;")
+                    });
+            }
         });
     </script>
 </head>
@@ -20,11 +41,19 @@
         <input id="search_input" type="text" name="name" placeholder="search in collection">
         <input type="submit" value="Search">
     </form>
-    {% for card in cards %}
+    {% if pages[0]|length > 0 %}
+        <div class="search-cards-num">{{ cards_num }} cards found</div>
+        <div class="search-current-page">page {{ page }} of {{ pages|length }} pages</div>
+    {% else %}
+        <div class="search-cards-num">No cards found</div>
+    {% endif %}
+    {% for card in pages[page-1] %}
         <div class="in-search-card-img">
             <a href="/card-copies/{{ card.name }}"><img title={{ card.name }} src={{ card.img_url }} width="200"></a>
             <p class="card-name-search">{{ card.name }}</p>
         </div>
     {% endfor %}
+    <div class="prev-page-button">< Previous Page</div>
+    <div class="next-page-button">Next Page ></div>
 </body>
 </html>

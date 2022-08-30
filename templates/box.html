@@ -17,7 +17,7 @@
     <div class="in-page-box-description">{{ box_description }}</div>
     {% for card in cards %}
         <div class="in-search-card-img">
-            <a href="/card/{{ card['card'].collector_num[1:] }}/{{ card['card'].edition }}"><img title="{{ card['card'].name }}" src="{{ card['card'].img_url }}" width="200"></a>
+            <a href="/card/{{ card['card'].collector_num }}/{{ card['card'].edition }}"><img title="{{ card['card'].name }}" src="{{ card['card'].img_url }}" width="200"></a>
             <p class="card-name-search">{{ card['card'].name }}</p>
             {% if card['is_foil'] and card['card'].foil_price != -1 %}
                 <p class="card-price-search">foil : {{ card['card'].foil_price }}$</p>

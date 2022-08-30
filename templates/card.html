@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/html">
 <head>
     <link rel="stylesheet" href="/static/style.css">
-    <title>{{ front_card.name }}</title>
+    <title>{{ primary_card.name }}</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
         function flip_card_img() {
@@ -50,11 +50,11 @@
         }
 
         function update_default_box () {
-            var card_type = '{{ front_card.type }}';
-            var color_id = '{{ front_card.color_identity }}';
+            var card_type = '{{ primary_card.type }}';
+            var color_id = '{{ primary_card.color_identity }}';
             var is_foil = get_checkbox_val("add_to_collection_foil_checkbox");
-            var nonfoil_price = '{{ front_card.nonfoil_price }}';
-            var foil_price = '{{ front_card.foil_price }}';
+            var nonfoil_price = '{{ primary_card.nonfoil_price }}';
+            var foil_price = '{{ primary_card.foil_price }}';
             $.ajax({
                 type: "GET",
                 url: `/get_box_for_card/${card_type}/${color_id}/${is_foil}/${nonfoil_price}/${foil_price}`,
@@ -70,7 +70,7 @@
         function update_card () {
             $.ajax({
                 type: "GET",
-                url: "/update_card/{{ front_card.edition }}/{{ front_card.collector_num[1:] }}",
+                url: "/update_card/{{ primary_card.edition }}/{{ primary_card.collector_num }}",
                 success: function (resp) {
                     location.reload();
                 }
@@ -100,12 +100,12 @@
     </form>
 
     <div class="in-page-card-img">
-        <img id="card_img" title="{{ front_card.name }}" src="{{ front_card.img_url }}" width="400">
+        <img id="card_img" title="{{ primary_card.name }}" src="{{ primary_card.img_url }}" width="400">
     </div>
 
-    {% for card in [front_card, back_card] %}
+    {% for card in [primary_card, back_card, split_sec_card] %}
         {% if card %}
-            {% for mana in card.mana_cost.replace('{','').replace('}','') %}
+            {% for mana in card.mana_cost[1:-1].split('}{') %}
                 {% if mana != '' %}
                     <div class="mana-cost-symbol symbol-{{ mana.replace('/', 'or') }}" title="one {{ mana }} mana">{{ mana }}</div>
                 {% endif %}
@@ -133,19 +133,19 @@
     {% if back_card %}
         <button class="flip-image-button" onclick="flip_card_img()">Flip</button>
     {% endif %}
-    {% if front_card.nonfoil_price != -1 %}
-        <p class="in-page-card-price">price : {{ front_card.nonfoil_price }}$</p>
+    {% if primary_card.nonfoil_price != -1 %}
+        <p class="in-page-card-price">price : {{ primary_card.nonfoil_price }}$</p>
     {% endif %}
-    {% if front_card.foil_price != -1 %}
-        <p class="in-page-card-price">foil price : {{ front_card.foil_price }}$</p>
+    {% if primary_card.foil_price != -1 %}
+        <p class="in-page-card-price">foil price : {{ primary_card.foil_price }}$</p>
     {% endif %}
 
     <button class="update-card-button" onclick="update_card()">Update card</button>
 
-    <a href="/card/all-versions/{{ front_card.url_name }}">
+    <a href="/card/all-versions/{{ primary_card.url_name }}">
         <button type="button">Show all versions</button>
     </a>
-    <a href="/card-copies/{{ front_card.name }}">
+    <a href="/card-copies/{{ primary_card.name }}">
         <button type="button">Show all copies</button>
     </a>
     <br><br>
@@ -158,7 +158,7 @@
             <input id="add_to_collection_foil_checkbox" type="checkbox">
             <span class="add-to-collection-foil-checkbox-checkmark"></span>
         </label>
-        <button class=add-to-collection-add-button" type="button" onclick="add_to_collection('{{ front_card.edition }}', '{{ front_card.collector_num }}', get_checkbox_val('add_to_collection_foil_checkbox'))">Add</button>
+        <button class=add-to-collection-add-button" type="button" onclick="add_to_collection('{{ primary_card.edition }}', '{{ primary_card.collector_num }}', get_checkbox_val('add_to_collection_foil_checkbox'))">Add</button>
     </div>
 
     <div id="add_to_deck_form" class="add-to-deck-form">
@@ -180,7 +180,7 @@
             <input id="add_to_deck_commander_checkbox" type="checkbox">
             <span class="commander-checkbox-checkmark"></span>
         </label>
-        <button class="add-to-deck-add-button" type="button" onclick="add_to_deck('{{ front_card.edition }}', '{{ front_card.collector_num }}', get_textbox_val('deck_name_input'), get_checkbox_val('add_to_deck_foil_checkbox'), get_checkbox_val('add_to_deck_commander_checkbox'))">Add</button>
+        <button class="add-to-deck-add-button" type="button" onclick="add_to_deck('{{ primary_card.edition }}', '{{ primary_card.collector_num }}', get_textbox_val('deck_name_input'), get_checkbox_val('add_to_deck_foil_checkbox'), get_checkbox_val('add_to_deck_commander_checkbox'))">Add</button>
     </div>
     <div id="card_box_name" class="add-to-collection-box-name"></div>
 </body>
